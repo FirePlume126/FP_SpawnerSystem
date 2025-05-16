@@ -22,6 +22,8 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 
 **生成器目录**
 
+- [使用指南](#fpspawnersystem_quickstart)：快速使用本插件  
+* [样例项目](#fpspawnersystem_sampleproject)：展示插件功能的示例项目 
 - [编辑器模块](#fpspawnersystem_fpspawnersystemeditor)：此插件的编辑器模块
 	- [实体管理器](#fpspawnersystemeditor_entitymanager)：在指定区域计算并生成实体数据
 		- [刷新散布数据](#fpspawnersystemeditor_refreshscatterdata)：移除旧散布数据并生成新散布数据
@@ -55,6 +57,16 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 - [项目设置](#fpspawnersystem-projectsettings)：此插件的项目设置
 * [函数库](#fpspawnersystem-functionlibrary)：此插件的函数库
 ---
+
+<a name="fpspawnersystem_quickstart"></a>
+### 使用指南
+
+快速使用本插件
+
+<a name="fpspawnersystem_sampleproject"></a>
+### 样例项目
+
+正在准备例项目...
 
 <a name="fpspawnersystem_fpspawnersystemeditor"></a>
 ### FPSpawnerSystemEditor
