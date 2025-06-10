@@ -22,13 +22,13 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 
 **生成器目录**
 
-- [使用指南](#fpspawnersystem_quickstart)：快速使用本插件 (待完成)
+- [使用指南](#fpspawnersystem_quickstart)：快速使用本插件
 * [样例项目](#fpspawnersystem_sampleproject)：展示插件功能的示例项目  (待完成)
 - [编辑器模块](#fpspawnersystem_fpspawnersystemeditor)：此插件的编辑器模块
 	- [实体管理器](#fpspawnersystemeditor_entitymanager)：在指定区域计算并生成实体数据
 		- [刷新散布数据](#fpspawnersystemeditor_refreshscatterdata)：移除旧散布数据并生成新散布数据
 		- [清除散布数据](#fpspawnersystemeditor_clearscatterdata)：清除散布数据，强行停止散布
-		- [应用调试数据](#fpspawnersystemeditor_applydebugdata)：应用自定义的数据
+		- [应用调试数据](#fpspawnersystemeditor_applydebugdata)：自定义实体变换，应用自定义的数据
 		- [应用散布数据](#fpspawnersystemeditor_applyscatterdata)：生成实体并清空散布数据，应用后实体将不受此插件的[运行时模块](#fpspawnersystem_fpspawnersystem)管理
 		- [管理器设置](#fpspawnersystemeditor_managersettings)：针对运行时状态的设置，用来控制实体管理器激活
 	- [散布策略](#fpspawnersystemeditor_scatterstrategy)：在派生类实现生成实体变换的逻辑
@@ -61,7 +61,25 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 <a name="fpspawnersystem_quickstart"></a>
 ### 使用指南
 
-快速使用本插件
+1、继承`UFPSpawnerEntityData`创建自己的[实体数据](#fpspawnersystem_entitydata)，在该资产中添加所需的模型资源(`Actor`或网格体)。
+
+2、在关卡指定区域放置[实体管理器](#fpspawnersystemeditor_entitymanager)，并设置散布区域的范围，
+给[实体管理器](#fpspawnersystemeditor_entitymanager)指定使用的[实体数据](#fpspawnersystem_entitydata)和实体数量，
+点击[刷新散布数据](#fpspawnersystemeditor_refreshscatterdata)生成实体散布数据。
+
+![FPSpawnerSystem_QuickStart](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart.png)
+
+3、根据[功能对比](#fpspawnersystem_functioncomparison)判断实体是用此插件的**运行时模块**管理还是用**世界分区**管理。
+
+|实体类型|推荐方案|说明|
+|:-:|:-:|:-:|
+|静态实体(如地形装饰物、固定建筑等)|世界分区|利用UE原生机制进行高效管理，内存占用低|
+|动态实体(如可交互对象、NPC等)|生成器系统|支持运行时动态生成、修改和删除实体，提供自定义属性集、数据序列化保存与恢复功能，适合需要灵活控制与状态保存的实体|
+|网络游戏环境中的实体|混合使用|尽量避免通过在此模块管理大量[Mesh实体数据](#fpspawnersystem_entitydata_Mesh)，以防止因频繁同步导致网络流量过大|
+
+4、给`APlayerController`添加`FPSpawnerActivationSourceComponent`组件使玩家成为[激活源](#fpspawnersystem_activationsource)。运行时只会在[激活源](#fpspawnersystem_activationsource)返回的位置附近生成实体。
+
+
 
 <a name="fpspawnersystem_sampleproject"></a>
 ### 样例项目
@@ -88,7 +106,9 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 <a name="fpspawnersystemeditor_entitymanager"></a>
 #### 实体管理器
 
-实体管理器，在指定区域计算并生成实体数据，生成的实体数据保存在[实体数据管理器](#fpspawnersystem_entitydatamanager)，此Actor仅在编辑器有效，放在场景大纲中使用。
+实体管理器，在指定区域计算并生成实体数据，生成的实体数据保存在[实体数据管理器](#fpspawnersystem_entitydatamanager)，
+删除实体管理器不会自动清除其生成的数据。如需删除数据，请先在实体管理器中[清除散布数据](#fpspawnersystemeditor_clearscatterdata)，再删除管理器。若实体管理器已删除，可通过[实体数据管理器](#fpspawnersystem_entitydatamanager)手动清理数据。
+此Actor仅在编辑器有效，放在场景大纲中使用。
 
 ![FPSpawnerSystem_EntityManager](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_EntityManager.png)
 
@@ -107,7 +127,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 <a name="fpspawnersystemeditor_applydebugdata"></a>
 * **应用调试数据**
 
-应用自定义的数据，[刷新散布数据](#fpspawnersystemeditor_refreshscatterdata)后，让`bDebugScatterData = true`且`bCustomScatterData = true`时，可以通过选中**调试网格**(图片中的箭头，选中时会变成目标实体)自定义实体的变换。
+自定义实体变换，应用自定义的数据，[刷新散布数据](#fpspawnersystemeditor_refreshscatterdata)后，让`bDebugScatterData = true`且`bCustomScatterData = true`时，可以通过选中**调试网格**(图片中的箭头，双击鼠标左键选中时会变成目标实体)自定义实体的变换。
 
 ![FPSpawnerSystem_ApplyDebugData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_ApplyDebugData.png)
 
@@ -379,12 +399,6 @@ public:
 开发者可以将[编辑器模块](#fpspawnersystem_fpspawnersystemeditor)中通过[散布策略](#fpspawnersystemeditor_scatterstrategy)生成的实体数据，通过[应用散布数据](#fpspawnersystemeditor_applyscatterdata)功能提交给[世界分区](https://dev.epicgames.com/documentation/unreal-engine/world-partition-in-unreal-engine)进行统一管理。
 然而，一旦实体数据被移交至[世界分区](https://dev.epicgames.com/documentation/unreal-engine/world-partition-in-unreal-engine)，这些实体将不再受**生成器系统**的运行时功能控制。你可以根据实体需求在以下两种模式中进行选择：
 
-|实体类型|推荐方案|说明|
-|:-:|:-:|:-:|
-|静态实体(如地形装饰物、固定建筑等)|世界分区|利用UE原生机制进行高效管理，内存占用低|
-|动态实体(如可交互对象、NPC等)|生成器系统|支持运行时动态生成、修改和删除实体，提供自定义属性集、数据序列化保存与恢复功能，适合需要灵活控制与状态保存的实体|
-|网络游戏环境中的实体|混合使用|尽量避免通过在此模块管理大量[Mesh实体数据](#fpspawnersystem_entitydata_Mesh)，以防止因频繁同步导致网络流量过大|
-
 |功能项|生成器系统|世界分区|
 |:-:|:-:|:-:|
 |数据存储方式|实体数据保存在内存<br>(可以通过[生成器保存数据](#fpspawnersystem_savedata)保存在硬盘)|未激活实体保存在硬盘<br>(运行时更节约内存)|
@@ -396,6 +410,12 @@ public:
 |LOD 控制|支持自定义LOD行为<br>(隐藏实体、调整Tick频率、接口反馈)|不支持LOD控制|
 |性能控制|多参数控制每帧最大加载/生成数量|加载由引擎统一调度|
 |调试与开发体验|提供统计数据查看、数据打印与数据清理/迁移操作|调试工具完善|
+
+|实体类型|推荐方案|说明|
+|:-:|:-:|:-:|
+|静态实体(如地形装饰物、固定建筑等)|世界分区|利用UE原生机制进行高效管理，内存占用低|
+|动态实体(如可交互对象、NPC等)|生成器系统|支持运行时动态生成、修改和删除实体，提供自定义属性集、数据序列化保存与恢复功能，适合需要灵活控制与状态保存的实体|
+|网络游戏环境中的实体|混合使用|尽量避免通过在此模块管理大量[Mesh实体数据](#fpspawnersystem_entitydata_Mesh)，以防止因频繁同步导致网络流量过大|
 
 <a name="fpspawnersystem_entitydatamanager"></a>
 #### 实体数据管理器
