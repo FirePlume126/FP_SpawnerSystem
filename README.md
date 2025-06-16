@@ -22,9 +22,8 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 
 **生成器目录**
 
-- [使用指南](#fpspawnersystem_quickstart)：快速使用本插件
-* [样例项目](#fpspawnersystem_sampleproject)：展示插件功能的示例项目  (待完成)
-- [编辑器模块](#fpspawnersystem_fpspawnersystemeditor)：此插件的编辑器模块
+- [使用指南](#fpspawnersystem_quickstart)：快速使用本插件  (待完成)
+* [编辑器模块](#fpspawnersystem_fpspawnersystemeditor)：此插件的编辑器模块
 	- [实体管理器](#fpspawnersystemeditor_entitymanager)：在指定区域计算并生成实体数据
 		- [刷新散布数据](#fpspawnersystemeditor_refreshscatterdata)：移除旧散布数据并生成新散布数据
 		- [清除散布数据](#fpspawnersystemeditor_clearscatterdata)：清除散布数据，强行停止散布
@@ -35,7 +34,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 		- [网格散布](#fpspawnersystemeditor_gridscatter)：根据实体数量将散布区域等分为多个网格区域，并在每个网格区域内随机偏移生成实体数据
 		- [随机散布](#fpspawnersystemeditor_randomscatter)：在场景随机生成实体数据
 
-* [运行时模块](#fpspawnersystem_fpspawnersystem)：此插件的运行时模块
+- [运行时模块](#fpspawnersystem_fpspawnersystem)：此插件的运行时模块
  	- [运行流程图](#fpspawnersystem_runtimeflowchart)：包含初始化流程和激活流程思维导图，以及加载范围示意图
 	- [功能对比](#fpspawnersystem_functioncomparison)：生成器系统VS世界分区
 	- [实体数据管理器](#fpspawnersystem_entitydatamanager)：管理编辑器状态下[实体管理器](#fpspawnersystemeditor_entitymanager)生成的实体数据
@@ -54,8 +53,8 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 		- [运行时实体](#fpspawnersystem_runtimeentity)：管理运行时的实体数据
 		- [运行时实体管理器](#fpspawnersystem_runtimeentitymanager)：管理[实体管理器](#fpspawnersystemeditor_entitymanager)的[运行时实体](#fpspawnersystem_runtimeentity)
 		- [运行时单元格](#fpspawnersystem_runtimecell)：管理单元格区域内可被激活的[运行时实体](#fpspawnersystem_runtimeentity)
-- [项目设置](#fpspawnersystem-projectsettings)：此插件的项目设置
-* [函数库](#fpspawnersystem-functionlibrary)：此插件的函数库
+* [项目设置](#fpspawnersystem-projectsettings)：此插件的项目设置
+- [函数库](#fpspawnersystem-functionlibrary)：此插件的函数库
 ---
 
 <a name="fpspawnersystem_quickstart"></a>
@@ -77,14 +76,34 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 |动态实体(如可交互对象、NPC等)|生成器系统|支持运行时动态生成、修改和删除实体，提供自定义属性集、数据序列化保存与恢复功能，适合需要灵活控制与状态保存的实体|
 |网络游戏环境中的实体|混合使用|尽量避免通过在此模块管理大量[Mesh实体数据](#fpspawnersystem_entitydata_Mesh)，以防止因频繁同步导致网络流量过大|
 
-4、给`APlayerController`添加`FPSpawnerActivationSourceComponent`组件使玩家成为[激活源](#fpspawnersystem_activationsource)。运行时只会在[激活源](#fpspawnersystem_activationsource)返回的位置附近生成实体。
+4、运行时只会在[激活源](#fpspawnersystem_activationsource)返回的位置附近生成实体。
+给`APlayerController`添加`FPSpawnerActivationSourceComponent`组件使玩家成为[激活源](#fpspawnersystem_activationsource)，当`bUseCameraLocation = true`时，返回当前摄像机位置，否则返回`Pawn`的位置。
 
+5、[实体管理器](#fpspawnersystemeditor_entitymanager)的默认状态由细节面板中的[管理器设置](#fpspawnersystemeditor_managersettings)控制。
+当`bAutoActivate = true`时会自动激活[实体管理器](#fpspawnersystemeditor_entitymanager)；
+若`ManagerName`不为空时，可以通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryModifyEntityManagerState()`修改实体管理器状态，同名管理器会被同时控制。
 
+![FPSpawnerSystem_QuickStart_1](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_1.png)
 
-<a name="fpspawnersystem_sampleproject"></a>
-### 样例项目
+|请求类型|描述|
+|:-:|:-:|
+|None|停用实体管理器，管理的实体也会被停用|
+|Activate|激活实体管理器，管理的实体会被注册到[分区网格管理器](#fpspawnersystem_partitiongridmanager)|
+|Reset|重置实体管理器，管理器的状态会恢复到默认值(和`bAutoActivate`相同)，实体的状态也会被重置|
+|Remove|移除实体管理器，实体数据和保存的序列化数据会被清空|
 
-正在准备样例项目...
+6、当管理实体的实体管理器被激活时，可以通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryModifyEntityState()`修改实体状态。
+实体句柄(EntityHandle)可以通过[函数库](#fpspawnersystem-functionlibrary)的函数`GetEntityHandle()`或[实体接口](#fpspawnersystem_entityinterface)获取。
+如果调用`AActor::Destroy()`删除实体，会自动调用此函数，且请求类型为`Destroy`。
+
+![FPSpawnerSystem_QuickStart_2](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_2.png)
+
+|请求类型|描述|
+|:-:|:-:|
+|None|把实体状态更改为停用，实体保存的序列化数据会被清空|
+|Activate|把实体状态更改为闲置，实体会被注册到[分区网格管理器](#fpspawnersystem_partitiongridmanager)，只有注册的实体才会被[激活源](#fpspawnersystem_activationsource)激活|
+|Destroy|销毁实体，若实体支持复活([实体数据](#fpspawnersystem_entitydata)中`RespawnTime > 0.0f`)，则实体状态将被设置为复活，<br>并在经过`RespawnTime`时间后可以被重新激活，否则实体状态将被设置为停用|
+|Reset|把实体状态更改为闲置，并重置数据|
 
 <a name="fpspawnersystem_fpspawnersystemeditor"></a>
 ### FPSpawnerSystemEditor
@@ -1209,7 +1228,9 @@ int32 MaxScatterObjectsPerTick = 100;
 UPROPERTY(config, EditAnywhere, meta = (ClampMin = 1), Category = "Config|Editor")
 uint32 InstancedMeshGridSize = 25600;
 #endif
-
+```
+以下为相关枚举结构体定义：
+```c++
 // 分区网格设置
 USTRUCT(BlueprintType)
 struct FFPSpawnerPartitionGridSettings
@@ -1218,45 +1239,49 @@ struct FFPSpawnerPartitionGridSettings
 
 public:
 
+	// 实体的加载/卸载完全跟随实体所属的网格单元
+	UPROPERTY(EditAnywhere, Category = "FFPSpawner")
+	bool bSyncEntityWithGrid = false;
+
+	// 按距离顺序加载网格，优先加载与激活源处于相同高度层级的网格，再按水平距离由近到远排序加载
+	UPROPERTY(EditAnywhere, Category = "FFPSpawner")
+	bool bLoadGridsInDistanceOrder = false;
+
 	// 单元格大小
-	UPROPERTY(EditAnywhere, meta = (ClampMin = 1600.0, ForceUnits = "cm"))
-	float CellSize = 6400.0f;
+	UPROPERTY(EditAnywhere, meta = (ClampMin = 1600.0, ForceUnits = "cm"), Category = "FFPSpawner")
+	float CellSize = 12800.0f;
 
 	// 加载范围，激活源球形范围接触到网格单元时激活它，加载此范围内的实体
-	UPROPERTY(EditAnywhere, meta = (ClampMin = 0.0, ForceUnits = "cm"))
-	float LoadingRange = 10000.0f;
+	UPROPERTY(EditAnywhere, meta = (ClampMin = 0.0, ForceUnits = "cm"), Category = "FFPSpawner")
+	float LoadingRange = 20000.0f;
 
 	// 卸载范围，激活源球形范围远离网格单元时卸载它，卸载此范围外卸载实体
-	UPROPERTY(EditAnywhere, meta = (ClampMin = 0.0, ForceUnits = "cm"))
-	float UnloadingRange = 12800.0f;
+	UPROPERTY(EditAnywhere, meta = (ClampMin = 0.0, ForceUnits = "cm"), Category = "FFPSpawner")
+	float UnloadingRange = 25600.0f;
 
 	// 排除范围，仅排除初次生成的实体，防止在激活源太近的位置刷新实体
-	UPROPERTY(EditAnywhere, meta = (ClampMin = 0.0, ForceUnits = "cm"))
-	float ExclusionRange = 500.0f;
+	UPROPERTY(EditAnywhere, meta = (ClampMin = 0.0, ForceUnits = "cm"), Category = "FFPSpawner")
+	float ExclusionRange = 1000.0f;
 
 	// 启用高度限制
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "FFPSpawner")
 	bool bEnableHeightLimit = false;
 
 	// 单元格高度，限制单元格的高度
-	UPROPERTY(EditAnywhere, meta = (ClampMin = 1600.0, ForceUnits = "cm", EditCondition = "bEnableHeightLimit"))
-	float CellHeight = 3200.0f;
+	UPROPERTY(EditAnywhere, meta = (ClampMin = 1600.0, ForceUnits = "cm", EditCondition = "bEnableHeightLimit"), Category = "FFPSpawner")
+	float CellHeight = 6400.0f;
 
 	// 加载高度，限制加载的高度
-	UPROPERTY(EditAnywhere, meta = (ClampMin = 0.0, ForceUnits = "cm", EditCondition = "bEnableHeightLimit"))
-	float LoadingHeight = 6400.0f;
+	UPROPERTY(EditAnywhere, meta = (ClampMin = 0.0, ForceUnits = "cm", EditCondition = "bEnableHeightLimit"), Category = "FFPSpawner")
+	float LoadingHeight = 12800.0f;
 
 	// 异步计算加载分区网格时，每帧最大计算时间(毫秒)
-	UPROPERTY(EditAnywhere, meta = (ClampMin = 1.0, ForceUnits = "ms"))
+	UPROPERTY(EditAnywhere, meta = (ClampMin = 1.0, ForceUnits = "ms"), Category = "FFPSpawner")
 	float MaxCalcTimePerFrame = 5.0f;
 
 	//  异步计算加载分区网格时，每帧最大时间(毫秒)
-	UPROPERTY(EditAnywhere, meta = (ClampMin = 1.0, ForceUnits = "ms"))
+	UPROPERTY(EditAnywhere, meta = (ClampMin = 1.0, ForceUnits = "ms"), Category = "FFPSpawner")
 	float MaxFrameTime = 10.0f;
-
-	// 读取网格单元的实体时，每帧最大加载网格单元的数量，等于0时直接异步线程处理所有加载网格单元
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 0))
-	int32 MaxLoadingNumberPerTick = 0;
 
 	// 是否有效
 	FORCEINLINE bool IsValid() const
@@ -1303,20 +1328,20 @@ struct FFPSpawnerActivateEntitySettings
 public:
 
 	// 每帧最大处理实体数据的数量
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 1))
-	int32 MaxActivateNumberPerTick = 1024;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 1), Category = "FFPSpawner")
+	int32 MaxActivateNumberPerTick = 2000;
 
 	// 每帧最大生成实体的数量
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 1))
-	int32 MaxSpawnNumberPerTick = 64;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 1), Category = "FFPSpawner")
+	int32 MaxSpawnNumberPerTick = 100;
 
 	// 最大生成Actor的数量
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 1))
-	int32 MaxActorNumber = 2560;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 1), Category = "FFPSpawner")
+	int32 MaxActorNumber = 1000;
 
 	// 最大生成网格体的数量
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 1))
-	int32 MaxMeshNumber = 25600;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 1), Category = "FFPSpawner")
+	int32 MaxMeshNumber = 10000;
 };
 ```
 
