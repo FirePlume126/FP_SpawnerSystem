@@ -692,6 +692,7 @@ graph TD
 
 |属性名称|类型|描述|
 |:-:|:-:|:-:|
+|SpawnCollisionHandling |`ESpawnActorCollisionHandlingMethod`|生成Actor的碰撞处理方法|
 |bDestroyAttachedActors|`boo`|是否销毁附加的`Actor`|
 |bShouldSaveData|`boo`|是否应该保存数据，为`true`时调用[函数库](#fpspawnersystem-functionlibrary)的函数`GetSpawnerSaveData()`保存此实体的数据，下此启动游戏时调用[函数库](#fpspawnersystem-functionlibrary)的函数`ApplySpawnerSaveData()`初始化属性|
 |AttributeSet|`TObjectPtr<UFPSpawnerEntityAttributeSet>`|[实体属性集](#fpspawnersystem_entityattributeset)|
