@@ -450,7 +450,6 @@ public:
 |属性名称|类型|描述|
 |:-:|:-:|:-:|
 |bAutoInitSpawner|`bool`|自动初始化[生成器管理子系统](#fpspawnersystem-managersubsystem)，为false时需要调用[函数库](#fpspawnersystem-functionlibrary)的函数`InitSpawnerSubsystem()`初始化[生成器管理子系统](#fpspawnersystem-managersubsystem)|
-|InitDelayTime|`float`|自动初始化[生成器管理子系统](#fpspawnersystem-managersubsystem)的延迟时间，`bAutoInitSpawner=true`时有效|
 |bSyncEntityWithGrid |`bool`|实体的加载/卸载完全跟随实体所属的网格单元|
 |bLoadGridsInDistanceOrder |`bool`|按距离顺序加载网格，优先加载与激活源处于相同高度层级的网格，再按水平距离由近到远排序加载|
 |CellSize|`float`|分区网格的单元格大小|
