@@ -125,9 +125,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 <a name="fpspawnersystemeditor_entitymanager"></a>
 #### 实体管理器
 
-实体管理器，在指定区域计算并生成实体数据，生成的实体数据保存在[实体数据管理器](#fpspawnersystem_entitydatamanager)，
-删除实体管理器不会自动清除其生成的数据。如需删除数据，请先在实体管理器中[清除散布数据](#fpspawnersystemeditor_clearscatterdata)，再删除管理器。若实体管理器已删除，可通过[实体数据管理器](#fpspawnersystem_entitydatamanager)手动清理数据。
-此Actor仅在编辑器有效，放在场景大纲中使用。
+实体管理器，在指定区域计算并生成实体数据，生成的实体数据保存在[实体数据管理器](#fpspawnersystem_entitydatamanager)中。此Actor仅在编辑器有效，放在场景大纲中使用。
 
 ![FPSpawnerSystem_EntityManager](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_EntityManager.png)
 
