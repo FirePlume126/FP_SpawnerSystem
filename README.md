@@ -47,7 +47,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 	- [实体数据](#fpspawnersystem_entitydata) 生成器实体数据是生成器系统的核心数据资产类
 		- [实体属性集](#fpspawnersystem_entityattributeset)：自定义实体属性，支持配置随机属性范围，卸载后保留于内存并可持久化至硬盘
 		- [实体接口](#fpspawnersystem_entityinterface)：通过此接口获取实体数据
-		- [生成器保存数据](#fpspawnersystem_savedata) 将运行时实体状态、属性集等信息进行序列化保存
+		- [生成器保存数据](#fpspawnersystem_savedata) 将运行时实体状态、序列化属性集等数据进行保存
 		- [实体LOD](#fpspawnersystem_entitylod)：客户端用于优化性能的机制
 	- [运行时数据管理类](#fpspawnersystem-runtimeprojectsettings)：这些类主要用于在游戏运行时高效处理的数据。
 		- [运行时实体](#fpspawnersystem_runtimeentity)：管理运行时的实体数据
@@ -60,6 +60,8 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 <a name="fpspawnersystem_quickstart"></a>
 ### 使用指南
 
+快速使用本插件，完成1-3就可以最简单的使用此插件，其他功能根据需求使用。
+
 1、继承`UFPSpawnerEntityData`创建自己的[实体数据](#fpspawnersystem_entitydata)，在该资产中添加所需的模型资源(`Actor`或网格体)。
 
 2、在关卡指定区域放置[实体管理器](#fpspawnersystemeditor_entitymanager)，并设置散布区域的范围，
@@ -68,16 +70,11 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 
 ![FPSpawnerSystem_QuickStart](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart.png)
 
-3、根据[功能对比](#fpspawnersystem_functioncomparison)判断实体是用此插件的**运行时模块**管理还是用**世界分区**管理。
-
-|实体类型|推荐方案|说明|
-|:-:|:-:|:-:|
-|静态实体(如地形装饰物、固定建筑等)|世界分区|利用UE原生机制进行高效管理，内存占用低|
-|动态实体(如可交互对象、NPC等)|生成器系统|支持运行时动态生成、修改和删除实体，提供自定义属性集、数据序列化保存与恢复功能，适合需要灵活控制与状态保存的实体|
-|网络游戏环境中的实体|混合使用|尽量避免通过在此模块管理大量[Mesh实体数据](#fpspawnersystem_entitydata_Mesh)，以防止因频繁同步导致网络流量过大|
-
-4、运行时只会在[激活源](#fpspawnersystem_activationsource)返回的位置附近生成实体。
+3、运行时只会在[激活源](#fpspawnersystem_activationsource)返回的位置附近生成实体。
 给`APlayerController`添加`FPSpawnerActivationSourceComponent`组件使玩家成为[激活源](#fpspawnersystem_activationsource)，当`bUseCameraLocation = true`时，返回当前摄像机位置，否则返回`Pawn`的位置。
+
+4、根据[功能对比](#fpspawnersystem_functioncomparison)判断实体是用此插件管理还是用[世界分区](https://dev.epicgames.com/documentation/unreal-engine/world-partition-in-unreal-engine)管理。
+对于静态实体建议通过[应用散布数据](#fpspawnersystemeditor_applyscatterdata)功能将实体提交给[世界分区](https://dev.epicgames.com/documentation/unreal-engine/world-partition-in-unreal-engine)进行统一管理。
 
 5、[实体管理器](#fpspawnersystemeditor_entitymanager)的默认状态由细节面板中的[管理器设置](#fpspawnersystemeditor_managersettings)控制。
 当`bAutoActivate = true`时会自动激活[实体管理器](#fpspawnersystemeditor_entitymanager)；
@@ -104,6 +101,28 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 |Activate|把实体状态更改为闲置，实体会被注册到[分区网格管理器](#fpspawnersystem_partitiongridmanager)，只有注册的实体才会被[激活源](#fpspawnersystem_activationsource)激活|
 |Destroy|销毁实体，若实体支持复活([实体数据](#fpspawnersystem_entitydata)中`RespawnTime > 0.0f`)，则实体状态将被设置为复活，<br>并在经过`RespawnTime`时间后可以被重新激活，否则实体状态将被设置为停用|
 |Reset|把实体状态更改为闲置，并重置数据|
+
+7、[生成器保存数据](#fpspawnersystem_savedata)：将运行时实体管理器状态、实体状态、序列化属性集等数据进行保存，并在下次启动游戏时重新加载这些数据，以恢复生成器系统的运行状态。
+
+仅当实体的[实体数据](#fpspawnersystem_entitydata)中`bShouldSaveData = true`时，该实体的数据才会被序列化保存。
+
+![FPSpawnerSystem_QuickStart_3](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_3.png)
+
+|[函数库](#fpspawnersystem-functionlibrary)的函数|调用时机|描述|
+|:-:|:-:|:-:|
+|`GetSpawnerSaveData()`|需要保存数据时调用|获取生成器保存数据，可以将数据保存在硬盘|
+|`ApplySpawnerSaveData()`|游戏开始时调用一次，建议在`AGameModeBase::InitGame()`或`AGameModeBase::BeginPlay()`中执行|应用生成器保存数据|
+
+8、为实体`Actor`实现[实体接口](#fpspawnersystem_entityinterface)`FPSpawnerEntityInterface`后，可通过该接口获取实体数据。若实体为`APawn`类型，还可将接口应用于其关联的`AAIController`。
+
+![FPSpawnerSystem_QuickStart_4](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_4.png)
+
+9、继承[实体属性集](#fpspawnersystem_entityattributeset)(`UFPSpawnerEntityAttributeSet`)定义实体的自定义属性，支持为特定数据类型(`int32`、`int64`、`float`、`double`、`FString`、`FName`、`FText`)设置随机范围。
+实体卸载后，属性集会序列化保留在内存中。在关联的[实体数据](#fpspawnersystem_entitydata)中设置`bShouldSaveData = true`，[生成器保存数据](#fpspawnersystem_savedata)时会将属性集写入硬盘。
+
+![FPSpawnerSystem_QuickStart_5](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_5.png)
+
+10、LOD
 
 <a name="fpspawnersystem_fpspawnersystemeditor"></a>
 ### FPSpawnerSystemEditor
@@ -413,13 +432,22 @@ public:
 <a name="fpspawnersystem_functioncomparison"></a>
 #### 功能对比
 
-开发者可以将[编辑器模块](#fpspawnersystem_fpspawnersystemeditor)中通过[散布策略](#fpspawnersystemeditor_scatterstrategy)生成的实体数据，通过[应用散布数据](#fpspawnersystemeditor_applyscatterdata)功能提交给[世界分区](https://dev.epicgames.com/documentation/unreal-engine/world-partition-in-unreal-engine)进行统一管理。
-然而，一旦实体数据被移交至[世界分区](https://dev.epicgames.com/documentation/unreal-engine/world-partition-in-unreal-engine)，这些实体将不再受**生成器系统**的运行时功能控制。你可以根据实体需求在以下两种模式中进行选择：
+此系统与[世界分区](https://dev.epicgames.com/documentation/unreal-engine/world-partition-in-unreal-engine)一样，采用基于[激活源](#fpspawnersystem_activationsource)位置的空间分区网格加载机制，并支持异步线程计算以提升性能。
+但该系统并非对[世界分区](https://dev.epicgames.com/documentation/unreal-engine/world-partition-in-unreal-engine)系统的替代，而是对其静态实体管理能力的有效补充。对于地形装饰物、固定建筑等静态实体，仍推荐使用世界分区进行统一管理；
+而对于可交互对象、NPC 等需要频繁修改或状态保存的动态实体，本系统展现出更高的灵活性与可控性。
+
+对于静态实体建议通过[应用散布数据](#fpspawnersystemeditor_applyscatterdata)功能将实体提交给[世界分区](https://dev.epicgames.com/documentation/unreal-engine/world-partition-in-unreal-engine)进行统一管理。
+然而，一旦实体数据被移交至[世界分区](https://dev.epicgames.com/documentation/unreal-engine/world-partition-in-unreal-engine)，这些实体将不再受此插件时功能控制。你可以根据实体需求在以下两种模式中进行选择：
+
+|实体类型|推荐方案|说明|
+|:-:|:-:|:-:|
+|静态实体(如地形装饰物、固定建筑等)|世界分区|利用UE原生机制进行高效管理，内存占用低|
+|动态实体(如可交互对象、NPC等)|生成器系统|支持运行时动态生成、修改和删除实体，提供自定义属性集、数据序列化保存与恢复功能，适合需要灵活控制与状态保存的实体|
 
 |功能项|生成器系统|世界分区|
 |:-:|:-:|:-:|
 |数据存储方式|实体数据保存在内存<br>(可以通过[生成器保存数据](#fpspawnersystem_savedata)保存在硬盘)|未激活实体保存在硬盘<br>(运行时更节约内存)|
-|加载机制|异步线程计算加载/卸载网格|基于`World Partition`系统自动管理加载|
+|加载机制|空间分区网格加载机制，并支持异步线程计算以提升性能|基于`World Partition`系统自动管理加载|
 |激活逻辑|通过[激活源](#fpspawnersystem_activationsource)控制实体激活，同时支持手动控制是否允许被[激活源](#fpspawnersystem_activationsource)激活|依赖`IWorldPartitionStreamingSourceProvider`接口控制激活|
 |动态编辑能力|支持运行时动态生成、修改、保存实体数据|不支持动态编辑|
 |持久化能力|实体状态、属性集均可序列化保存<br>支持关卡切换后恢复运行时状态|不支持运行时状态的持久化|
@@ -427,12 +455,6 @@ public:
 |LOD 控制|支持自定义LOD行为<br>(隐藏实体、调整Tick频率、接口反馈)|不支持LOD控制|
 |性能控制|多参数控制每帧最大加载/生成数量|加载由引擎统一调度|
 |调试与开发体验|提供统计数据查看、数据打印与数据清理/迁移操作|调试工具完善|
-
-|实体类型|推荐方案|说明|
-|:-:|:-:|:-:|
-|静态实体(如地形装饰物、固定建筑等)|世界分区|利用UE原生机制进行高效管理，内存占用低|
-|动态实体(如可交互对象、NPC等)|生成器系统|支持运行时动态生成、修改和删除实体，提供自定义属性集、数据序列化保存与恢复功能，适合需要灵活控制与状态保存的实体|
-|网络游戏环境中的实体|混合使用|尽量避免通过在此模块管理大量[Mesh实体数据](#fpspawnersystem_entitydata_Mesh)，以防止因频繁同步导致网络流量过大|
 
 <a name="fpspawnersystem_entitydatamanager"></a>
 #### 实体数据管理器
@@ -716,7 +738,7 @@ graph TD
 
 ![FPSpawnerSystem_AttributeSet](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_AttributeSet.png)
 
-2、添加给[实体数据](#fpspawnersystem_entitydata)可以设置属性默认值，数据类型int32、int64、float、double、FString、FName、FText支持设置随机范围。
+2、添加给[实体数据](#fpspawnersystem_entitydata)可以设置属性默认值，数据类型`int32`、`int64`、`float`、`double`、`FString`、`FName`、`FText`支持设置随机范围。
 
 ![FPSpawnerSystem_AttributeSet_Instance](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_AttributeSet_Instance.png)
 
@@ -750,7 +772,8 @@ DECLARE_FUNCTION(execK2_UpdateAttribute);
 <a name="fpspawnersystem_entityinterface"></a>
 * **实体接口**
 
-通过此接口获取实体数据，添加给生成的实体的Actor，如果实体是APawn，支持添加给AAIController。 如果APawn和AAIController都添加了此接口，服务器函数在AAIController执行，客户端函数在APawn执行
+为实体Actor实现此接口后，可通过该接口获取实体数据。若实体为APawn类型，还可将接口应用于其关联的AAIController。如果APawn和AAIController都实现了此接口，服务器函数在AAIController执行，客户端函数在APawn执行。
+
 ```c++
 class FPSPAWNERSYSTEM_API IFPSpawnerEntityInterface
 {
@@ -788,7 +811,7 @@ public:
 <a name="fpspawnersystem_savedata"></a>
 * **生成器保存数据**
 
-将运行时实体状态、属性集等信息进行序列化保存，并在下次启动游戏时重新加载这些数据，以恢复生成器系统的运行状态。
+将运行时实体管理器状态、实体状态、序列化属性集等数据进行保存，并在下次启动游戏时重新加载这些数据，以恢复生成器系统的运行状态。
 
 该功能通过[函数库](#fpspawnersystem-functionlibrary)中的以下三个核心函数实现：
 ```c++
