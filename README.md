@@ -689,8 +689,8 @@ graph TD
 |:-:|:-:|:-:|
 |EntityClass|`TSoftClassPtr<AActor>`|实体类，添加`Actor`时切换成`Actor`实体数据，添加`Pawn`时切换成`Pawn`实体数据|
 |MeshDatas|`TArray<FFPSpawnerMeshData>`|网格数据，不为空时切换成`Mesh`实体数据|
-|RespawnTime|`float`|重生时间，等于0时不重生，外部调用AActor::Destroy()或通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryModifyEntityManagerState()`销毁`Acyor`时，重新生成实体的时间间隔|
-|LifeTime|`float`|生存时间，等于0时不死亡，第一次生成实体的时间到当前时间的时间间隔大于`LifeTime`时销毁`Acyor`|
+|RespawnTime|`float`|重生时间，等于0时不重生，外部调用AActor::Destroy()或通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryModifyEntityManagerState()`销毁`Actor`时，重新生成实体的时间间隔|
+|LifeTime|`float`|生存时间，等于0时不死亡，当激活源加载实体时，实体从生成到当前的时间间隔如果超过该值，则销毁实体。在激活源附近的实体不会因生存时间过长而被销毁|
 
 <a name="fpspawnersystem_entitydata_Mesh"></a>
 `Mesh`实体数据
@@ -713,6 +713,7 @@ graph TD
 |:-:|:-:|:-:|
 |SpawnCollisionHandling |`ESpawnActorCollisionHandlingMethod`|生成Actor的碰撞处理方法|
 |bDestroyAttachedActors|`boo`|是否销毁附加的`Actor`|
+|bResetAttributesOnRespawn|`boo`|重生时是否重置属性|
 |bShouldSaveData|`boo`|是否应该保存数据，为`true`时调用[函数库](#fpspawnersystem-functionlibrary)的函数`GetSpawnerSaveData()`保存此实体的数据，下此启动游戏时调用[函数库](#fpspawnersystem-functionlibrary)的函数`ApplySpawnerSaveData()`初始化属性|
 |AttributeSet|`TObjectPtr<UFPSpawnerEntityAttributeSet>`|[实体属性集](#fpspawnersystem_entityattributeset)|
 |bLODArrayOverrides|`boo`|LOD数组覆盖，为true时覆盖[项目设置](#fpspawnersystem-projectsettings)中的LODArray，使用仅属于此实体的LOD|
@@ -725,7 +726,7 @@ graph TD
 
 |属性名称|类型|描述|
 |:-:|:-:|:-:|
-|AIControllerClass|`TSoftClassPtr<AController>`|AI控制器类，当`Pawn`没有AI控制器时，使用此类创建控制器|
+|AIControllerClass|`TSoftClassPtr<AAIController>`|AI控制器类，当`Pawn`没有AI控制器时，使用此类创建控制器|
 |BehaviorTree|`TSoftObjectPtr<UBehaviorTree>`|AI行为树|
 |bDestroyController|`bool`|AI角色是否删除AI控制器，如果不删除，下次复活或激活将继续使用此控制器；实体被停用或重置时会强制销毁|
 
@@ -793,8 +794,9 @@ public:
 	void RecycleAttributeSet(UFPSpawnerEntityAttributeSet* AttributeSet);
 
 	// 函数会在此系统删除Actor前执行，删除Actor不代表删除实体，激活源远离也会删除并执行此函数
+	// @param NewEntityState 删除实体后的实体状态
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, BlueprintAuthorityOnly, Category = "FPSpawner")
-	void DestroyActor();
+	void DestroyActor(EFPSpawnerEntityStateType NewEntityState);
 
 	// 接收年龄时间(秒)
 	// @param AgeTime 第一次生成此实体到现在的时间，而非重新激活的时间
