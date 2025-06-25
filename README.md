@@ -22,7 +22,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 
 **生成器目录**
 
-- [使用指南](#fpspawnersystem_quickstart)：快速使用本插件  (待完成)
+- [使用指南](#fpspawnersystem_quickstart)：快速使用本插件
 * [编辑器模块](#fpspawnersystem_fpspawnersystemeditor)：此插件的编辑器模块
 	- [实体管理器](#fpspawnersystemeditor_entitymanager)：在指定区域计算并生成实体数据
 		- [刷新散布数据](#fpspawnersystemeditor_refreshscatterdata)：移除旧散布数据并生成新散布数据
@@ -60,7 +60,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 <a name="fpspawnersystem_quickstart"></a>
 ### 使用指南
 
-快速使用本插件，完成1-3就可以最简单的使用此插件，其他功能根据需求使用。
+**快速使用本插件。只需完成第1-3步骤即可实现插件的基本功能，其他功能可根据需求使用。**
 
 1、继承`UFPSpawnerEntityData`创建自己的[实体数据](#fpspawnersystem_entitydata)，在该资产中添加所需的模型资源(`Actor`或网格体)。
 
@@ -79,6 +79,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 5、[实体管理器](#fpspawnersystemeditor_entitymanager)的默认状态由细节面板中的[管理器设置](#fpspawnersystemeditor_managersettings)控制。
 当`bAutoActivate = true`时会自动激活[实体管理器](#fpspawnersystemeditor_entitymanager)；
 若`ManagerName`不为空时，可以通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryModifyEntityManagerState()`修改实体管理器状态，同名管理器会被同时控制。
+可以通过[函数库](#fpspawnersystem-functionlibrary)的函数ResetAllEntityManagers()重置所有实体管理器，也会重置所有实体并清除所有保存数据。
 
 ![FPSpawnerSystem_QuickStart_1](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_1.png)
 
@@ -122,7 +123,10 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 
 ![FPSpawnerSystem_QuickStart_5](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_5.png)
 
-10、LOD
+10、通过[项目设置](#fpspawnersystem-projectsettings)对[实体LOD](#fpspawnersystem_entitylod)进行全局配置。
+如果要对单个实体的LOD覆盖，可以在[实体数据](#fpspawnersystem_entitydata)中设置`bLODArrayOverrides = true`，为特定实体设置独立的LOD行为。<br>
+[实体LOD](#fpspawnersystem_entitylod)仅影响本地客户端性能。如需提升整体游戏性能，建议在[实体数据管理器](#fpspawnersystem_entitydatamanager)的[生成器设置](#fpspawnersystem_spawnersettings)中合理配置参数。
+适当调整可在保证视觉体验的同时显著优化性能，但可能会影响加载范围或响应速度。
 
 <a name="fpspawnersystem_fpspawnersystemeditor"></a>
 ### FPSpawnerSystemEditor
@@ -501,6 +505,8 @@ public:
 `MoveTo Manager Id`输入实体管理器ID，将`Remove Manager Id`的实体数据移动到此ID的实体管理器。
 
 ![FPSpawnerSystem_OperateScatterData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_OperateScatterData.png)
+
+3、在控制台输入指令`FP.Spawner.Debug.EntityCounts`可以查看实体总数、活动Actor计数和活动网格体计数。
 
 <a name="fpspawnersystem-managersubsystem"></a>
 #### 生成器管理子系统
@@ -908,7 +914,7 @@ public:
 
 浅绿色区域的实体为`LOD 0`；浅蓝色区域的实体为`LOD 1`；浅红色区域的实体为`LOD 2`。
 
-1、通常通过[项目设置](#fpspawnersystem-projectsettings)进行全局配置
+1、通过[项目设置](#fpspawnersystem-projectsettings)进行全局配置
 
 ![FPSpawnerSystem_EntityLOD_Settings](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_EntityLOD_Settings.png)
 
@@ -923,7 +929,7 @@ public:
 
 2、编辑器自定义，对`FFPSpawnerLODArray`进行了编辑器定制，确保用户操作更直观；`LOD 0`属性锁定，防止修改`bHideEntity`和`TickInterval`；排序规则，保证LOD数组按照距离递增顺序排列；
 
-3、单个实体的LOD覆盖，可以在[实体数据](#fpspawnersystem_entitydata)中开启LOD覆盖功能，为特定实体设置独立的LOD行为
+3、如果要对单个实体的LOD覆盖，可以在[实体数据](#fpspawnersystem_entitydata)中开启LOD覆盖功能，为特定实体设置独立的LOD行为
 
 4、通过接口获取LOD状态，可以通过[实体接口](#fpspawnersystem_entityinterface)的`ReceiveLODIndex()`函数，实时获取当前实体所处的LOD索引。
 
@@ -1400,6 +1406,10 @@ static bool TryModifyEntityManagerState(const UObject* WorldContextObject, const
 // @param InRequestType 生成器实体请求类型
 UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
 static bool TryModifyEntityState(const UObject* WorldContextObject, const FFPSpawnerEntityHandle& InEntityHandle, const EFPSpawnerEntityRequestType InRequestType);
+
+// 重置所有实体管理器，也会重置所有实体并重置数据
+UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
+static void ResetAllEntityManagers(const UObject* WorldContextObject);
 
 // 获取实体句柄
 // @param InEntity 生成器生成的实体
