@@ -125,6 +125,10 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 
 10、通过[项目设置](#fpspawnersystem-projectsettings)对[实体LOD](#fpspawnersystem_entitylod)进行全局配置。
 如果要对单个实体的LOD覆盖，可以在[实体数据](#fpspawnersystem_entitydata)中设置`bLODArrayOverrides = true`，为特定实体设置独立的LOD行为。<br>
+可以通过[函数库](#fpspawnersystem-functionlibrary)中的函数`SetLODDistance()`或`GetLODDistance()`分别动态设置/获取LOD距离缩放比例。
+
+![FPSpawnerSystem_QuickStart_6](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_6.png)
+
 [实体LOD](#fpspawnersystem_entitylod)仅影响本地客户端性能。如需提升整体游戏性能，建议在[实体数据管理器](#fpspawnersystem_entitydatamanager)的[生成器设置](#fpspawnersystem_spawnersettings)中合理配置参数。
 适当调整可在保证视觉体验的同时显著优化性能，但可能会影响加载范围或响应速度。
 
@@ -925,13 +929,16 @@ public:
 |MaxDistance|`float`|LOD的最大距离|
 |bHideEntity|`bool`|是否隐藏实体|
 |TickInterval|`float`|此LOD的Tick间距，用来修改Actor和组件的Tick间距|
-|OutOfViewLODScale|`float`|视野外的LOD距离比例，设为1时不考虑视角方向|
+|BaseScale|`float`|基础LOD距离缩放比例|
+|OutOfViewFactor|`float`|视野外LOD距离缩放因子(在基础比例上额外缩放)。等于1时不计算视野角度|
 
 2、编辑器自定义，对`FFPSpawnerLODArray`进行了编辑器定制，确保用户操作更直观；`LOD 0`属性锁定，防止修改`bHideEntity`和`TickInterval`；排序规则，保证LOD数组按照距离递增顺序排列；
 
 3、如果要对单个实体的LOD覆盖，可以在[实体数据](#fpspawnersystem_entitydata)中开启LOD覆盖功能，为特定实体设置独立的LOD行为
 
-4、通过接口获取LOD状态，可以通过[实体接口](#fpspawnersystem_entityinterface)的`ReceiveLODIndex()`函数，实时获取当前实体所处的LOD索引。
+4、可以通过[函数库](#fpspawnersystem-functionlibrary)中的函数`SetLODDistance()`或`GetLODDistance()`分别动态设置/获取LOD距离缩放比例。
+
+5、通过接口获取LOD状态，可以通过[实体接口](#fpspawnersystem_entityinterface)的`ReceiveLODIndex()`函数，实时获取当前实体所处的LOD索引。
 
 <a name="fpspawnersystem-runtimeprojectsettings"></a>
 #### 运行时数据管理类
@@ -1243,9 +1250,9 @@ bool bEnableLOD = true;
 UPROPERTY(config, EditAnywhere, meta = (EditCondition = "bEnableLOD"), Category = "Config|LOD Settings")
 FFPSpawnerLODArray LODArray = FFPSpawnerLODArray(false);
 
-// 视野外的LOD距离比例，设为1时不考虑视角方向
-UPROPERTY(config, EditAnywhere, meta = (EditCondition = "bEnableLOD", ClampMin = 0.0, ClampMax = 1.0), Category = "Config|LOD Settings")
-float OutOfViewLODScale = 0.5f;
+// LOD距离设置
+UPROPERTY(config, EditAnywhere, meta = (EditCondition = "bEnableLOD"), DisplayName = "LOD Distance", Category = "Config|LOD Settings")
+FFPSpawnerLODDistance LODDistance;
 
 #if WITH_EDITORONLY_DATA
 
@@ -1372,6 +1379,23 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 1), Category = "FFPSpawner")
 	int32 MaxMeshNumber = 10000;
 };
+
+// LOD距离设置
+USTRUCT(BlueprintType)
+struct FFPSpawnerLODDistance
+{
+	GENERATED_BODY()
+
+public:
+
+	// 基础LOD距离缩放比例
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 0.01, ClampMax = 1.0), Category = "FFPSpawner")
+	float BaseScale = 1.0f;
+
+	// 视野外LOD距离缩放因子(在基础比例上额外缩放)。等于1时不计算视野角度
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 0.0, ClampMax = 1.0), Category = "FFPSpawner")
+	float OutOfViewFactor = 0.5f;
+};
 ```
 
 <a name="fpspawnersystem-functionlibrary"></a>
@@ -1421,4 +1445,13 @@ static FFPSpawnerEntityHandle GetEntityHandle(AActor* InEntity);
 // @param InEntity 生成器生成的实体
 UFUNCTION(BlueprintPure, Category = "FPSpawner")
 static UFPSpawnerEntityAttributeSet* GetEntityAttributeSet(AActor* InEntity);
+
+// 设置LOD距离，会保存到配置文件
+// @param NewLODDistance LOD距离
+UFUNCTION(BlueprintCallable, Category = "FPSpawner")
+static void SetLODDistance(const FFPSpawnerLODDistance& NewLODDistance);
+
+// 获取LOD距离
+UFUNCTION(BlueprintPure, Category = "FPSpawner")
+static FFPSpawnerLODDistance GetLODDistance();
 ```
