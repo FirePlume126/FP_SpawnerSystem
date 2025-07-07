@@ -129,8 +129,8 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 
 ![FPSpawnerSystem_QuickStart_6](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_6.png)
 
-[实体LOD](#fpspawnersystem_entitylod)仅影响本地客户端性能。如需提升整体游戏性能，建议在[实体数据管理器](#fpspawnersystem_entitydatamanager)的[生成器设置](#fpspawnersystem_spawnersettings)中合理配置参数。
-适当调整可在保证视觉体验的同时显著优化性能，但可能会影响加载范围或响应速度。
+[实体LOD](#fpspawnersystem_entitylod)仅影响本地客户端性能。如需提升整体游戏性能，建议在[实体数据管理器](#fpspawnersystem_entitydatamanager)的[生成器设置](#fpspawnersystem_spawnersettings)中合理配置参数，
+也可以通过[实体数据](#fpspawnersystem_entitydata)中设置`LoadingScaleFactor`来缩小特定实体的加载范围。合理配置参数可在保证基本视觉体验的同时显著提升性能。
 
 <a name="fpspawnersystem_fpspawnersystemeditor"></a>
 ### FPSpawnerSystemEditor
@@ -480,8 +480,6 @@ public:
 |属性名称|类型|描述|
 |:-:|:-:|:-:|
 |bAutoInitSpawner|`bool`|自动初始化[生成器管理子系统](#fpspawnersystem-managersubsystem)，为false时需要调用[函数库](#fpspawnersystem-functionlibrary)的函数`InitSpawnerSubsystem()`初始化[生成器管理子系统](#fpspawnersystem-managersubsystem)|
-|bSyncEntityWithGrid |`bool`|实体的加载/卸载完全跟随实体所属的网格单元|
-|bLoadGridsInDistanceOrder |`bool`|按距离顺序加载网格，优先加载与激活源处于相同高度层级的网格，再按水平距离由近到远排序加载|
 |CellSize|`float`|分区网格的单元格大小|
 |LoadingRange|`float`|加载范围，[激活源](#fpspawnersystem_activationsource)球形范围接触到网格单元时激活它，加载此范围内的实体|
 |UnloadingRange|`float`|卸载范围，[激活源](#fpspawnersystem_activationsource)球形范围远离网格单元时卸载它，卸载此范围外卸载实体|
@@ -614,7 +612,7 @@ public:
 * **分区网格管理器**
 
 管理[分区网格](#fpspawnersystem_runtimecell)，根据[激活源](#fpspawnersystem_activationsource)位置通过[分区网格计算](#fpspawnersystem_partitiongridcalculation)异步线程计算出需要加载/卸载的网格，
-然后基于[激活源](#fpspawnersystem_activationsource)位置进一步计算实体的新状态，可以通过[生成器设置](#fpspawnersystem_spawnersettings)的`bSyncEntityWithGrid`让实体的加载/卸载完全跟随实体所属的网格单元。
+优先加载与激活源处于相同高度层级的网格，再按水平距离由近到远排序加载。最后基于[激活源](#fpspawnersystem_activationsource)位置进一步计算实体的新状态。
 
 * 使用指南
 
@@ -699,6 +697,7 @@ graph TD
 |:-:|:-:|:-:|
 |EntityClass|`TSoftClassPtr<AActor>`|实体类，添加`Actor`时切换成`Actor`实体数据，添加`Pawn`时切换成`Pawn`实体数据|
 |MeshDatas|`TArray<FFPSpawnerMeshData>`|网格数据，不为空时切换成`Mesh`实体数据|
+|LoadingScaleFactor|`float`|加载缩放比例，等比调整[实体数据管理器](#fpspawnersystem_entitydatamanager)中的加载范围(`LoadingRange`)、卸载范围(`UnloadingRange`)和排除范围(`ExclusionRange`)对此实体的影响|
 |RespawnTime|`float`|重生时间，等于0时不重生，外部调用AActor::Destroy()或通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryModifyEntityManagerState()`销毁`Actor`时，重新生成实体的时间间隔|
 |LifeTime|`float`|生存时间，等于0时不死亡，当激活源加载实体时，实体从生成到当前的时间间隔如果超过该值，则销毁实体。在激活源附近的实体不会因生存时间过长而被销毁|
 
@@ -738,7 +737,7 @@ graph TD
 |:-:|:-:|:-:|
 |AIControllerClass|`TSoftClassPtr<AAIController>`|AI控制器类，当`Pawn`没有AI控制器时，使用此类创建控制器|
 |BehaviorTree|`TSoftObjectPtr<UBehaviorTree>`|AI行为树|
-|bDestroyController|`bool`|AI角色是否删除AI控制器，如果不删除，下次复活或激活将继续使用此控制器；实体被停用或重置时会强制销毁|
+|bDestroyController|`bool`|AI角色是否删除控制器，控制器拥有`PlayerState`且`bDestroyController = false`时不删除控制器，下次复活或激活将继续使用此控制器，但实体被停用或重置时会强制销毁|
 
 <a name="fpspawnersystem_entityattributeset"></a>
 * **实体属性集**
@@ -1248,7 +1247,7 @@ bool bEnableLOD = true;
 
 // LOD数组，定义多个LOD级别，按距离控制实体行为
 UPROPERTY(config, EditAnywhere, meta = (EditCondition = "bEnableLOD"), Category = "Config|LOD Settings")
-FFPSpawnerLODArray LODArray = FFPSpawnerLODArray(false);
+FFPSpawnerLODArray LODArray;
 
 // LOD距离设置
 UPROPERTY(config, EditAnywhere, meta = (EditCondition = "bEnableLOD"), DisplayName = "LOD Distance", Category = "Config|LOD Settings")
@@ -1263,6 +1262,14 @@ int32 MaxScatterObjectsPerTick = 100;
 //  应用散布数据时，世界分区的散布网格单元大小，开启世界分区才有效
 UPROPERTY(config, EditAnywhere, meta = (ClampMin = 1), Category = "Config|Editor")
 uint32 InstancedMeshGridSize = 25600;
+
+// 调试网格，选中时隐藏，材质需添加PerInstanceCustomData[3]控制不透明蒙版
+UPROPERTY(config, EditAnywhere, Category = "Config|Editor|Debug")
+TSoftObjectPtr<UStaticMesh> DebugMesh = nullptr;
+
+// 调试网格颜色，需要在材质添加PerInstanceCustomData[0, 1, 2]控制颜色
+UPROPERTY(config, EditAnywhere, Category = "Config|Editor|Debug")
+FLinearColor DebugMeshColor = FLinearColor(1.0f, 0.0f, 0.0f);
 #endif
 ```
 以下为相关枚举结构体定义：
@@ -1274,14 +1281,6 @@ struct FFPSpawnerPartitionGridSettings
 	GENERATED_BODY()
 
 public:
-
-	// 实体的加载/卸载完全跟随实体所属的网格单元
-	UPROPERTY(EditAnywhere, Category = "FFPSpawner")
-	bool bSyncEntityWithGrid = false;
-
-	// 按距离顺序加载网格，优先加载与激活源处于相同高度层级的网格，再按水平距离由近到远排序加载
-	UPROPERTY(EditAnywhere, Category = "FFPSpawner")
-	bool bLoadGridsInDistanceOrder = false;
 
 	// 单元格大小
 	UPROPERTY(EditAnywhere, meta = (ClampMin = 1600.0, ForceUnits = "cm"), Category = "FFPSpawner")
