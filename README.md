@@ -68,7 +68,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 给[实体管理器](#fpspawnersystemeditor_entitymanager)指定使用的[实体数据](#fpspawnersystem_entitydata)和实体数量，
 点击[刷新散布数据](#fpspawnersystemeditor_refreshscatterdata)生成实体散布数据。
 
-![FPSpawnerSystem_QuickStart](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart.png)
+![FPSpawnerSystem_QuickStart_EntityManager](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_EntityManager.png)
 
 3、运行时只会在[激活源](#fpspawnersystem_activationsource)返回的位置附近生成实体。
 给`APlayerController`添加`FPSpawnerActivationSourceComponent`组件使玩家成为[激活源](#fpspawnersystem_activationsource)，当`bUseCameraLocation = true`时，返回当前摄像机位置，否则返回`Pawn`的位置。
@@ -81,7 +81,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 若`ManagerName`不为空时，可以通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryModifyEntityManagerState()`修改实体管理器状态，同名管理器会被同时控制。
 可以通过[函数库](#fpspawnersystem-functionlibrary)的函数ResetAllEntityManagers()重置所有实体管理器，也会重置所有实体并清除所有保存数据。
 
-![FPSpawnerSystem_QuickStart_1](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_1.png)
+![FPSpawnerSystem_QuickStart_ModifyManager](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_ModifyManager.png)
 
 |请求类型|描述|
 |:-:|:-:|
@@ -94,7 +94,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 实体句柄(EntityHandle)可以通过[函数库](#fpspawnersystem-functionlibrary)的函数`GetEntityHandle()`或[实体接口](#fpspawnersystem_entityinterface)获取。
 如果调用`AActor::Destroy()`删除实体，会自动调用此函数，且请求类型为`Destroy`。
 
-![FPSpawnerSystem_QuickStart_2](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_2.png)
+![FPSpawnerSystem_QuickStart_ModifyEntity](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_ModifyEntity.png)
 
 |请求类型|描述|
 |:-:|:-:|
@@ -107,7 +107,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 
 仅当实体的[实体数据](#fpspawnersystem_entitydata)中`bShouldSaveData = true`时，该实体的数据才会被序列化保存。
 
-![FPSpawnerSystem_QuickStart_3](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_3.png)
+![FPSpawnerSystem_QuickStart_SaveData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_SaveData.png)
 
 |[函数库](#fpspawnersystem-functionlibrary)的函数|调用时机|描述|
 |:-:|:-:|:-:|
@@ -116,18 +116,31 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 
 8、为实体`Actor`实现[实体接口](#fpspawnersystem_entityinterface)`FPSpawnerEntityInterface`后，可通过该接口获取实体数据。若实体为`APawn`类型，还可将接口应用于其关联的`AAIController`。
 
-![FPSpawnerSystem_QuickStart_4](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_4.png)
+![FPSpawnerSystem_QuickStart_Interface](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_Interface.png)
 
 9、继承[实体属性集](#fpspawnersystem_entityattributeset)(`UFPSpawnerEntityAttributeSet`)定义实体的自定义属性，支持为特定数据类型(`int32`、`int64`、`float`、`double`、`FString`、`FName`、`FText`)设置随机范围。
 实体卸载后，属性集会序列化保留在内存中。在关联的[实体数据](#fpspawnersystem_entitydata)中设置`bShouldSaveData = true`，[生成器保存数据](#fpspawnersystem_savedata)时会将属性集写入硬盘。
 
-![FPSpawnerSystem_QuickStart_5](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_5.png)
+![FPSpawnerSystem_QuickStart_AttributeSet](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_AttributeSet.png)
 
-10、通过[项目设置](#fpspawnersystem-projectsettings)对[实体LOD](#fpspawnersystem_entitylod)进行全局配置。
+10、若需在运行时动态添加实体(例如玩家建造房屋或放置物品)，可通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryCreateDynamicEntityData()`创建动态实体数据，生成的实体将被托管至动态[实体管理器](#fpspawnersystemeditor_entitymanager)，支持分区加载/卸载，并支持持久化保存数据。<br>
+当动态实体被停用(如不可复活的实体被删除)时，其所有数据将被自动清除。动态实体通常生成在玩家附近，建议在对应的[实体数据](#fpspawnersystem_entitydata)中设置`bIgnoreExclusionRange = true`，以避免因激活源过近而阻止生成。<br>
+可通过函数`RemoveDynamicEntityManagerData()`移除由`TryCreateDynamicEntityData()`添加的所有动态实体数据。
+
+![FPSpawnerSystem_QuickStart_DynamicEntity](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_DynamicEntity.png)
+
+|函数参数|类型|描述|
+|:-:|:-:|:-:|
+|NewEntityData|`TSoftObjectPtr<UFPSpawnerEntityData>`|[实体数据](#fpspawnersystem_entitydata)|
+|NewTransform|`FTransform`|生成实体的变换|
+|NewAttributeSet|`UFPSpawnerEntityAttributeSet*`|可选[实体属性集](#fpspawnersystem_entityattributeset)，必须与`NewEntityData`中指定的属性集类型一致；为空时则使用默认值或随机范围值；外部手动创建的属性集，会在序列化后自动被GC回收|
+|OutEntityHandle|`FFPSpawnerEntityHandle`|返回生成实体的唯一句柄|
+
+11、通过[项目设置](#fpspawnersystem-projectsettings)对[实体LOD](#fpspawnersystem_entitylod)进行全局配置。
 如果要对单个实体的LOD覆盖，可以在[实体数据](#fpspawnersystem_entitydata)中设置`bLODArrayOverrides = true`，为特定实体设置独立的LOD行为。<br>
 可以通过[函数库](#fpspawnersystem-functionlibrary)中的函数`SetLODDistance()`或`GetLODDistance()`分别动态设置/获取LOD距离缩放比例。
 
-![FPSpawnerSystem_QuickStart_6](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_6.png)
+![FPSpawnerSystem_QuickStart_LOD](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_LOD.png)
 
 [实体LOD](#fpspawnersystem_entitylod)仅影响本地客户端性能。如需提升整体游戏性能，建议在[实体数据管理器](#fpspawnersystem_entitydatamanager)的[生成器设置](#fpspawnersystem_spawnersettings)中合理配置参数，
 也可以通过[实体数据](#fpspawnersystem_entitydata)中设置`LoadingScaleFactor`来缩小特定实体的加载范围。合理配置参数可在保证基本视觉体验的同时显著提升性能。
@@ -534,7 +547,7 @@ TMap<FGuid, TSharedRef<FFPSpawnerRuntimeEntityManager>> EntityManagerDataMap;
 ```
 
 3、通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryModifyEntityManagerState()`和`TryModifyEntityState()`分别动态控制**实体管理器**和**实体**的状态，
-实体销毁或停用时会重置实体的所以属性。
+实体销毁或停用时会重置实体的所以属性。也可以通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryCreateDynamicEntityData()`创建动态实体数据，动态实体数据存放到动态实体管理器，如果此实体被停用(如果实体不可以复活，删除它也会停用)，将会删除它的所有数据
 
 以下为相关枚举结构体定义：
 ```c++
@@ -697,6 +710,7 @@ graph TD
 |:-:|:-:|:-:|
 |EntityClass|`TSoftClassPtr<AActor>`|实体类，添加`Actor`时切换成`Actor`实体数据，添加`Pawn`时切换成`Pawn`实体数据|
 |MeshDatas|`TArray<FFPSpawnerMeshData>`|网格数据，不为空时切换成`Mesh`实体数据|
+|bIgnoreExclusionRange|`bool`|忽略排除范围(`ExclusionRange`)对此实体的影响|
 |LoadingScaleFactor|`float`|加载缩放比例，等比调整[实体数据管理器](#fpspawnersystem_entitydatamanager)中的加载范围(`LoadingRange`)、卸载范围(`UnloadingRange`)和排除范围(`ExclusionRange`)对此实体的影响|
 |RespawnTime|`float`|重生时间，等于0时不重生，外部调用AActor::Destroy()或通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryModifyEntityManagerState()`销毁`Actor`时，重新生成实体的时间间隔|
 |LifeTime|`float`|生存时间，等于0时不死亡，当激活源加载实体时，实体从生成到当前的时间间隔如果超过该值，则销毁实体。在激活源附近的实体不会因生存时间过长而被销毁|
@@ -868,10 +882,14 @@ public:
 	UPROPERTY()
 	TMap<FFPSpawnerEntityHandle, FFPSpawnerEntitySaveData> ModifiedEntityDataMap;
 
+	// 动态散布数据，运行时添加的散布数据
+	UPROPERTY()
+	TArray<FFPSpawnerScatterData> DynamicScatterData;
+
 	// 是否有效
 	FORCEINLINE bool IsValid() const
 	{
-		return !ModifiedEntityManagers.IsEmpty() || !RemovedEntityManagers.IsEmpty() || !ModifiedEntityDataMap.IsEmpty();
+		return !ModifiedEntityManagers.IsEmpty() || !RemovedEntityManagers.IsEmpty() || !ModifiedEntityDataMap.IsEmpty() || !DynamicScatterData.IsEmpty();
 	}
 };
 ```
@@ -978,6 +996,12 @@ public:
 
 	// 获取实体数据
 	UFPSpawnerEntityData* GetEntityData() const;
+
+	// 使用排除范围
+	bool UseExclusionRange() const;
+
+	// 获取加载缩放比例
+	float GetLoadingScaleFactor() const;
 
 	// 获取重生时间
 	float GetRespawnTime() const;
@@ -1143,7 +1167,7 @@ public:
 	FFPSpawnerRuntimeEntityManager(const FGuid& NewManagerId, const FFPSpawnerEntityManagerSettings& NewManagerSettings);
 
 	// 创建运行时实体管理器
-	static TSharedRef<FFPSpawnerRuntimeEntityManager> CreateRuntimeEntityManager(const FGuid& NewManagerId, const FFPSpawnerEntityManagerSettings& NewManagerSettings);
+	static TSharedRef<FFPSpawnerRuntimeEntityManager> CreateRuntimeEntityManager(const FGuid& NewManagerId, const FFPSpawnerEntityManagerSettings& NewManagerSettings = FFPSpawnerEntityManagerSettings());
 
 	// 是否已激活
 	bool bIsActivate = false;
@@ -1156,6 +1180,9 @@ public:
 
 	// 添加运行实体
 	TSharedPtr<FFPSpawnerRuntimeEntity> AddRuntimeEntity(const FFPSpawnerScatterData& InScatterData);
+
+	// 移除实体
+	void RemoveEntity(const FFPSpawnerEntityHandle& InEntityHandle);
 
 	// 查找实体
 	TSharedPtr<FFPSpawnerRuntimeEntity> FindEntity(const FFPSpawnerEntityHandle& InEntityHandle) const;
@@ -1430,15 +1457,40 @@ static bool TryModifyEntityManagerState(const UObject* WorldContextObject, const
 UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
 static bool TryModifyEntityState(const UObject* WorldContextObject, const FFPSpawnerEntityHandle& InEntityHandle, const EFPSpawnerEntityRequestType InRequestType);
 
+// 尝试创建动态实体数据，运行时添加实体数据，数据会存放到动态实体管理器。如果此实体被停用(如果实体不可以复活，删除它也会停用)，将会删除它的所有数据
+// @param NewEntityData 实体数据
+// @param NewTransform 实体变换
+// @param OutEntityHandle 返回实体句柄
+// @param NewAttributeSet 实体的属性集，属性集必须和NewEntityData的属性集为同一个类，为空时使用NewEntityData数据集的默认值或随机值；手动创建的属性集(非生成器系统内部创建的)会在使用完成后自动GC
+UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
+static bool TryCreateDynamicEntityData(const UObject* WorldContextObject, TSoftObjectPtr<UFPSpawnerEntityData> NewEntityData, const FTransform& NewTransform, FFPSpawnerEntityHandle& OutEntityHandle, UFPSpawnerEntityAttributeSet* NewAttributeSet = nullptr);
+
+// 移除动态实体管理器的实体数据，会移除由UFPSpawnerFunctionLibrary::TryCreateDynamicEntityData()添加的所有实体
+UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
+static void RemoveDynamicEntityManagerData(const UObject* WorldContextObject);
+
 // 重置所有实体管理器，也会重置所有实体并重置数据
 UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
 static void ResetAllEntityManagers(const UObject* WorldContextObject);
+
+// 获取实体数据
+// @param InEntityHandle 实体句柄，生成器系统的实体唯一标识
+// @param OutEntityState 返回实体状态
+// @param OutTransform 返回实体变换，未生成的实体也可返回变换
+// @param OutEntityActor 返回生成器生成的实体，仅当OutEntityState==EFPSpawnerEntityStateType::Active时，返回才不为空
+UFUNCTION(BlueprintPure, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
+static bool GetEntityInfo(const UObject* WorldContextObject, const FFPSpawnerEntityHandle& InEntityHandle, EFPSpawnerEntityStateType& OutEntityState, FTransform& OutTransform, AActor*& OutEntityActor);
 
 // 获取实体句柄
 // @param InEntity 生成器生成的实体
 // @return 实体句柄，生成器系统的实体唯一标识
 UFUNCTION(BlueprintPure, Category = "FPSpawner")
 static FFPSpawnerEntityHandle GetEntityHandle(AActor* InEntity);
+
+// 获取实体数据
+// @param InEntity 生成器生成的实体
+UFUNCTION(BlueprintPure, Category = "FPSpawner")
+static UFPSpawnerEntityData* GetEntityData(AActor* InEntity);
 
 // 获取实体属性集
 // @param InEntity 生成器生成的实体
