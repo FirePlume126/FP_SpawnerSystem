@@ -2,6 +2,7 @@
 # 生成器系统
 
 * **插件未开源**
+* **Demo 中包含的插件没有开源，但支持添加到其他项目中使用，并支持打包**
 
 ## 作者信息
 Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
@@ -71,7 +72,8 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 ![FPSpawnerSystem_QuickStart_EntityManager](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_EntityManager.png)
 
 3、运行时只会在[激活源](#fpspawnersystem_activationsource)返回的位置附近生成实体。
-给`APlayerController`添加`FPSpawnerActivationSourceComponent`组件使玩家成为[激活源](#fpspawnersystem_activationsource)，当`bUseCameraLocation = true`时，返回当前摄像机位置，否则返回`Pawn`的位置。
+给`APlayerController`添加`FPSpawnerActivationSourceComponent`组件使玩家成为[激活源](#fpspawnersystem_activationsource)，当`bUseCameraLocation = true`时，返回当前摄像机位置，否则返回`Pawn`的位置。<br>
+在控制台输入指令`FP.Spawner.Debug.EntityCounts (bool)`可以查看实体统计数据。
 
 4、根据[功能对比](#fpspawnersystem_functioncomparison)判断实体是用此插件管理还是用[世界分区](https://dev.epicgames.com/documentation/unreal-engine/world-partition-in-unreal-engine)管理。
 对于静态实体建议通过[应用散布数据](#fpspawnersystemeditor_applyscatterdata)功能将实体提交给[世界分区](https://dev.epicgames.com/documentation/unreal-engine/world-partition-in-unreal-engine)进行统一管理。
@@ -124,7 +126,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 ![FPSpawnerSystem_QuickStart_AttributeSet](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_AttributeSet.png)
 
 10、若需在运行时动态添加实体(例如玩家建造房屋或放置物品)，可通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryCreateDynamicEntityData()`创建动态实体数据，生成的实体将被托管至动态[实体管理器](#fpspawnersystemeditor_entitymanager)，支持分区加载/卸载，并支持持久化保存数据。<br>
-当动态实体被停用(如不可复活的实体被删除)时，其所有数据将被自动清除。动态实体通常生成在玩家附近，建议在对应的[实体数据](#fpspawnersystem_entitydata)中设置`bIgnoreExclusionRange = true`，以避免因激活源过近而阻止生成。<br>
+当动态实体被停用(如不可复活的实体被销毁)时，其所有数据将被自动清除。动态实体通常生成在玩家附近，建议在对应的[实体数据](#fpspawnersystem_entitydata)中设置`bIgnoreExclusionRange = true`，以避免因激活源过近而阻止生成。<br>
 可通过函数`RemoveDynamicEntityManagerData()`移除由`TryCreateDynamicEntityData()`添加的所有动态实体数据。
 
 ![FPSpawnerSystem_QuickStart_DynamicEntity](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_DynamicEntity.png)
@@ -270,7 +272,7 @@ static bool TryModifyEntityManagerState(const UObject* WorldContextObject, const
 UPROPERTY(EditAnywhere)
 FFPSpawnerScatterMode ScatterMode = FFPSpawnerScatterMode::Ground;
 
-// 跟踪参数，在地面生成时检测有效表面；在空中生成时检测无效表面
+// 检测参数，在地面生成时检测有效表面；在空中生成时检测无效表面
 UPROPERTY(EditAnywhere)
 FFPSpawnerTraceParams TraceParams;
 
@@ -291,7 +293,7 @@ void UpdateScatterEntityData(const FFPSpawnerScatterData& NewScatterData);
 ```
 
 <a name="fpspawnersystemeditor_traceparameters"></a>
-跟踪参数(TraceParameters)
+检测参数(TraceParameters)
 
 用于判断是否可以生成实体。在地面生成时检测有效表面；在空中生成时检测无效表面
 
@@ -303,7 +305,7 @@ void UpdateScatterEntityData(const FFPSpawnerScatterData& NewScatterData);
 |bTraceComplex|`bool`|是否使用复杂碰撞进行检测|
 |IgnoredActors|`TArray<TObjectPtr<AActor>>`|在追踪时忽略的Actor列表|
 |PhysMaterials|`TArray<TObjectPtr<UPhysicalMaterial>>`|允许生成的物理材质类型|
-|MaxSlopeAngle|`float`|最大允许斜坡角度，超过该角度的表面将被视为无效|
+|MaxSlopeAngle|`float`|最大斜面角度，地面的倾斜角超过该角度，将不会生成实体|
 |NavFilterClass|`TSubclassOf<UNavigationQueryFilter>`|导航查询过滤器类，可以仅在导航区域生成|
 
 以下为相关枚举结构体定义：
@@ -395,7 +397,7 @@ public:
 |RotationPitchRange|`FVector2D`|实体绕Pitch(Y轴)的随机旋转角度范围|
 |RotationRollRange|`FVector2D`|实体绕Roll(X轴)的随机旋转角度范围|
 |ScaleRange|`FVector2D`|实体缩放范围|
-|TraceParams|[跟踪参数](#fpspawnersystemeditor_traceparameters)|用于判断是否可以生成实体。在地面生成时检测有效表面；在空中生成时检测无效表面|
+|TraceParams|[检测参数](#fpspawnersystemeditor_traceparameters)|用于判断是否可以生成实体。在地面生成时检测有效表面；在空中生成时检测无效表面|
 
 <a name="fpspawnersystemeditor_randomscatter"></a>
 * **随机散布**
@@ -413,7 +415,7 @@ public:
 |RotationPitchRange|`FVector2D`|实体绕Pitch(Y轴)的随机旋转角度范围|
 |RotationRollRange|`FVector2D`|实体绕Roll(X轴)的随机旋转角度范围|
 |ScaleRange|`FVector2D`|实体缩放范围|
-|TraceParams|[跟踪参数](#fpspawnersystemeditor_traceparameters)|用于判断是否可以生成实体。在地面生成时检测有效表面；在空中生成时检测无效表面|
+|TraceParams|[检测参数](#fpspawnersystemeditor_traceparameters)|用于判断是否可以生成实体。在地面生成时检测有效表面；在空中生成时检测无效表面|
 
 <a name="fpspawnersystem_fpspawnersystem"></a>
 ### FPSpawnerSystem
@@ -447,7 +449,7 @@ public:
 ![FPSpawnerSystem_MindMap](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_MindMap.png)
 ![FPSpawnerSystem_ActivationSource](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_ActivationSource.png)
 1、绿色圆圈是加载范围；红色圆圈是卸载范围。<br>
-2、绿色分区网格是加载网络；红色分区网格是未加载的范围。<br>
+2、绿色分区网格是加载网络；红色分区网格是未加载网络。<br>
 3、浅绿色区域加载实体；浅蓝色区域不再加载实体，已加载的实体不卸载；浅红色卸载实体。
 
 <a name="fpspawnersystem_functioncomparison"></a>
@@ -462,7 +464,7 @@ public:
 
 |实体类型|推荐方案|说明|
 |:-:|:-:|:-:|
-|静态实体(如地形装饰物、固定建筑等)|世界分区|利用UE原生机制进行高效管理，内存占用低|
+|静态实体(如地形装饰物、固定建筑等)|世界分区|利用UE原生机制进行高效管理，内存占用低，网络同步的带宽消耗低(静态实体一般不需要同步)|
 |动态实体(如可交互对象、NPC等)|生成器系统|支持运行时动态生成、修改和删除实体，提供自定义属性集、数据序列化保存与恢复功能，适合需要灵活控制与状态保存的实体|
 
 |功能项|生成器系统|世界分区|
@@ -499,9 +501,9 @@ public:
 |ExclusionRange|`float`|排除范围，仅排除初次生成的实体，防止在[激活源](#fpspawnersystem_activationsource)太近的位置刷新实体|
 |bEnableHeightLimit|`bool`|启用高度限制|
 |CellHeight|`float`|单元格高度，限制单元格的高度|
-|LoadingHeight|`float`|加载高度，限制加载的高度|
+|LoadingHeight|`float`|加载高度，限制加载范围和卸载范围的高度|
 |MaxCalcTimePerFrame|`float`|[分区网格计算](#fpspawnersystem_partitiongridcalculation)时，每帧最大计算时间(毫秒)|
-|MaxFrameTime|`float`|[分区网格计算](#fpspawnersystem_partitiongridcalculation)时，每帧最大时间(毫秒)|
+|ThreadSleepDuration|`float`|[分区网格计算](#fpspawnersystem_partitiongridcalculation)时，计算时间超过`MaxCalcTimePerFrame`后线程的休眠时长(毫秒)|
 |MaxActivateNumberPerTick|`int32`|每帧最大处理实体数据的数量|
 |MaxSpawnNumberPerTick|`int32`|每帧最大生成实体的数量|
 |MaxActorNumber|`int32`|最大生成Actor的数量|
@@ -521,12 +523,12 @@ public:
 
 ![FPSpawnerSystem_OperateScatterData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_OperateScatterData.png)
 
-3、在控制台输入指令`FP.Spawner.Debug.EntityCounts`可以查看实体总数、活动Actor计数和活动网格体计数。
+3、在控制台输入指令`FP.Spawner.Debug.EntityCounts (bool)`可以查看实体总数、活动Actor计数和活动网格体计数。
 
 <a name="fpspawnersystem-managersubsystem"></a>
 #### 生成器管理子系统
 
-生成器管理子系统是此模块的核心，仅在存在于服务器，管理实体数据并动态生成实体。
+生成器管理子系统是此模块的核心，仅存在于服务器，管理实体数据并动态生成实体。
 
 1、初始化条件
 
@@ -593,7 +595,7 @@ enum class EFPSpawnerEntityRequestType : uint8
 
 ![FPSpawnerSystem_ActivationSource](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_ActivationSource.png)
 1、绿色圆圈是加载范围；红色圆圈是卸载范围。<br>
-2、绿色分区网格是加载网络；红色分区网格是未加载的范围。<br>
+2、绿色分区网格是加载网络；红色分区网格是未加载网络。<br>
 3、浅绿色区域加载实体；浅蓝色区域不再加载实体，已加载的实体不卸载；浅红色卸载实体。
 
 在`AActor`或`UActorComponent`中实现`FPSpawnerActivationSourceInterface`接口，重写`GetActivationSourceLocation()`返回激活源位置，
@@ -685,7 +687,7 @@ void OnReceivePartitionGrid_AnyThread(const TArray<FIntVector>& InLoadPartitionG
 // 更新分区网格
 // @param NewSourceLocations 生成器保存的数据
 // @param NewMovePartitionGrid 因实体移动而激活的网格坐标
-void UpdatePartitionGrid(const TArray<FVector>& NewSourceLocations, const TSet<FIntVector>& NewMovePartitionGrid);
+bool UpdatePartitionGrid(const TArray<FVector>& NewSourceLocations, const TSet<FIntVector>& NewMovePartitionGrid);
 ```
 
 <a name="fpspawnersystem_entitydata"></a>
@@ -713,7 +715,7 @@ graph TD
 |bIgnoreExclusionRange|`bool`|忽略排除范围(`ExclusionRange`)对此实体的影响|
 |LoadingScaleFactor|`float`|加载缩放比例，等比调整[实体数据管理器](#fpspawnersystem_entitydatamanager)中的加载范围(`LoadingRange`)、卸载范围(`UnloadingRange`)和排除范围(`ExclusionRange`)对此实体的影响|
 |RespawnTime|`float`|重生时间，等于0时不重生，外部调用AActor::Destroy()或通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryModifyEntityManagerState()`销毁`Actor`时，重新生成实体的时间间隔|
-|LifeTime|`float`|生存时间，等于0时不死亡，当激活源加载实体时，实体从生成到当前的时间间隔如果超过该值，则销毁实体。在激活源附近的实体不会因生存时间过长而被销毁|
+|LifeTime|`float`|生存时间，等于0时不死亡，当激活源激活实体时(非初次激活)，实体从初次生成到当前的时间间隔如果超过该值，则销毁实体。实体周围存在激活源时，系统不会因为生存时间而销毁实体|
 
 <a name="fpspawnersystem_entitydata_Mesh"></a>
 `Mesh`实体数据
@@ -822,7 +824,7 @@ public:
 	void DestroyActor(EFPSpawnerEntityStateType NewEntityState);
 
 	// 接收年龄时间(秒)
-	// @param AgeTime 第一次生成此实体到现在的时间，而非重新激活的时间
+	// @param AgeTime 第一次生成此实体到现在时间的差值，而非重新激活的时间
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, BlueprintAuthorityOnly, Category = "FPSpawner")
 	void ReceiveAgeTime(float AgeTime);
 
@@ -840,7 +842,7 @@ public:
 
 该功能通过[函数库](#fpspawnersystem-functionlibrary)中的以下三个核心函数实现：
 ```c++
-// 初始化生成器子系统，AFPSpawnerEntityDataManager::bAutoInitSpawner=false时调用此函数才有效
+// 初始化生成器子系统，场景中存在实体数据管理器(AFPSpawnerEntityDataManager)，且AFPSpawnerEntityDataManager::bAutoInitSpawner=false时调用此函数才有效
 // @param NewSaveData 生成器保存的数据
 UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
 static bool InitSpawnerSubsystem(const UObject* WorldContextObject, const FFPSpawnerSaveData& NewSaveData);
@@ -988,6 +990,9 @@ public:
 	// 网格坐标
 	FIntVector GridCoord = FIntVector(INT_MAX);
 
+	// 初始化加载设置
+	void InitLoadingSettings();
+
 	// 获取实体句柄
 	FFPSpawnerEntityHandle GetEntityHandle() const;
 
@@ -997,11 +1002,8 @@ public:
 	// 获取实体数据
 	UFPSpawnerEntityData* GetEntityData() const;
 
-	// 使用排除范围
-	bool UseExclusionRange() const;
-
-	// 获取加载缩放比例
-	float GetLoadingScaleFactor() const;
+	// 获取加载设置
+	FFPSpawnerLoadingSettings GetLoadingSettings() const;
 
 	// 获取重生时间
 	float GetRespawnTime() const;
@@ -1031,6 +1033,9 @@ private:
 
 	// 生成器散布数据
 	const FFPSpawnerScatterData ScatterData;
+		
+	// 实体加载设置
+	FFPSpawnerLoadingSettings LoadingSettings;
 };
 ```
 
@@ -1075,7 +1080,7 @@ public:
 		return ManagerId.IsValid() && Handle != INDEX_NONE;
 	}
 
-	// 获取管理器名称
+	// 获取管理器ID
 	FORCEINLINE FGuid GetManagerId() const
 	{
 		return ManagerId;
@@ -1135,7 +1140,7 @@ public:
 	// 属性字符串映射，序列化的自定义属性集
 	TMap<FString, FString> PropertyStringMap;
 
-	// 是否应该保存数据
+	// 是否应该保存数据，为true时调用UFPSpawnerFunctionLibrary::GetSpawnerSaveData()保存上述四个变量
 	bool bShouldSaveData = false;
 
 	// 实体Actor
@@ -1333,17 +1338,17 @@ public:
 	UPROPERTY(EditAnywhere, meta = (ClampMin = 1600.0, ForceUnits = "cm", EditCondition = "bEnableHeightLimit"), Category = "FFPSpawner")
 	float CellHeight = 6400.0f;
 
-	// 加载高度，限制加载的高度
+	// 加载高度，限制加载范围和卸载范围的高度
 	UPROPERTY(EditAnywhere, meta = (ClampMin = 0.0, ForceUnits = "cm", EditCondition = "bEnableHeightLimit"), Category = "FFPSpawner")
 	float LoadingHeight = 12800.0f;
 
 	// 异步计算加载分区网格时，每帧最大计算时间(毫秒)
 	UPROPERTY(EditAnywhere, meta = (ClampMin = 1.0, ForceUnits = "ms"), Category = "FFPSpawner")
-	float MaxCalcTimePerFrame = 5.0f;
+	float MaxCalcTimePerFrame = 10.0f;
 
-	//  异步计算加载分区网格时，每帧最大时间(毫秒)
+	// 异步计算加载分区网格时，计算时间超过MaxCalcTimePerFrame后线程的休眠时长(毫秒)
 	UPROPERTY(EditAnywhere, meta = (ClampMin = 1.0, ForceUnits = "ms"), Category = "FFPSpawner")
-	float MaxFrameTime = 10.0f;
+	float ThreadSleepDuration = 10.0f;
 
 	// 是否有效
 	FORCEINLINE bool IsValid() const
@@ -1430,7 +1435,7 @@ public:
 函数库`UFPSpawnerFunctionLibrary`
 
 ```c++
-// 初始化生成器子系统，AFPSpawnerEntityDataManager::bAutoInitSpawner=false时调用此函数才有效
+// 初始化生成器子系统，场景中存在实体数据管理器(AFPSpawnerEntityDataManager)，且AFPSpawnerEntityDataManager::bAutoInitSpawner=false时调用此函数才有效
 // @param NewSaveData 生成器保存的数据
 UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
 static bool InitSpawnerSubsystem(const UObject* WorldContextObject, const FFPSpawnerSaveData& NewSaveData);
@@ -1457,7 +1462,7 @@ static bool TryModifyEntityManagerState(const UObject* WorldContextObject, const
 UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
 static bool TryModifyEntityState(const UObject* WorldContextObject, const FFPSpawnerEntityHandle& InEntityHandle, const EFPSpawnerEntityRequestType InRequestType);
 
-// 尝试创建动态实体数据，运行时添加实体数据，数据会存放到动态实体管理器。如果此实体被停用(如果实体不可以复活，删除它也会停用)，将会删除它的所有数据
+// 尝试创建动态实体数据，运行时添加实体数据，数据会存放到动态实体管理器。如果此实体被停用(如果实体不可复活，销毁它就会停用实体)，将会删除它的所有数据
 // @param NewEntityData 实体数据
 // @param NewTransform 实体变换
 // @param OutEntityHandle 返回实体句柄
@@ -1505,4 +1510,12 @@ static void SetLODDistance(const FFPSpawnerLODDistance& NewLODDistance);
 // 获取LOD距离
 UFUNCTION(BlueprintPure, Category = "FPSpawner")
 static FFPSpawnerLODDistance GetLODDistance();
+
+// 将保存数据转为Json字符串
+UFUNCTION(BlueprintPure, Category = "FPSpawner")
+static bool SaveDataToJsonString(const FFPSpawnerSaveData& InSaveData, FString& OutJsonString);
+
+// 将Json字符串转为保存数据
+UFUNCTION(BlueprintPure, Category = "FPSpawner")
+static bool JsonStringToSaveData(const FString& InJsonString, FFPSpawnerSaveData& OutSaveData);
 ```
