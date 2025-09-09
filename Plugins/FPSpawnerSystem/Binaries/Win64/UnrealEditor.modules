@@ -1,0 +1,8 @@
+{
+	"BuildId": "43139311",
+	"Modules": 
+	{
+		"FPSpawnerSystem": "UnrealEditor-FPSpawnerSystem.dll",
+		"FPSpawnerSystemEditor": "UnrealEditor-FPSpawnerSystemEditor.dll"
+	}
+}

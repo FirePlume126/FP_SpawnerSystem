@@ -1,0 +1,28 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "FPSpawnerSystem",
+	"Description": "Spawner system, Spawner system editor",
+	"Category": "System",
+	"CreatedBy": "FirePlume",
+	"CreatedByURL": "https://github.com/FirePlume126",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"EngineVersion": "5.6.0",
+	"CanContainContent": true,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "FPSpawnerSystem",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "FPSpawnerSystemEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	]
+}
