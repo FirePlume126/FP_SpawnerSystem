@@ -20,6 +20,7 @@
 		"..\\..\\..\\x64\\UnrealGame\\Development\\FPSpawnerSystem\\FPSpawnerMeshEntityManager.cpp.obj",
 		"..\\..\\..\\x64\\UnrealGame\\Development\\FPSpawnerSystem\\FPSpawnerScatterMeshAttachActor.cpp.obj",
 		"..\\..\\..\\x64\\UnrealGame\\Development\\FPSpawnerSystem\\FPSpawnerStaticMeshComponent.cpp.obj",
-		"..\\..\\..\\x64\\UnrealGame\\Development\\FPSpawnerSystem\\FPSpawnerFunctionLibrary.cpp.obj"
+		"..\\..\\..\\x64\\UnrealGame\\Development\\FPSpawnerSystem\\FPSpawnerFunctionLibrary.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\FPSpawnerSystem\\FPSpawnerListenEntityStateChange.cpp.obj"
 	]
 }

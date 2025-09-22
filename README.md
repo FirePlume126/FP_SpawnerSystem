@@ -69,7 +69,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 给[实体管理器](#fpspawnersystemeditor_entitymanager)指定使用的[实体数据](#fpspawnersystem_entitydata)和实体数量，
 点击[刷新散布数据](#fpspawnersystemeditor_refreshscatterdata)生成实体散布数据。
 
-![FPSpawnerSystem_QuickStart_EntityManager](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_EntityManager.png)
+![FPSpawnerSystem_QuickStart_EntityManager](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_QuickStart_EntityManager.png)
 
 3、运行时只会在[激活源](#fpspawnersystem_activationsource)返回的位置附近生成实体。
 给`APlayerController`添加`FPSpawnerActivationSourceComponent`组件使玩家成为[激活源](#fpspawnersystem_activationsource)，当`bUseCameraLocation = true`时，返回当前摄像机位置，否则返回`Pawn`的位置。<br>
@@ -83,7 +83,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 若`ManagerName`不为空时，可以通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryModifyEntityManagerState()`修改实体管理器状态，同名管理器会被同时控制。
 可以通过[函数库](#fpspawnersystem-functionlibrary)的函数ResetAllEntityManagers()重置所有实体管理器，也会重置所有实体并清除所有保存数据。
 
-![FPSpawnerSystem_QuickStart_ModifyManager](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_ModifyManager.png)
+![FPSpawnerSystem_QuickStart_ModifyManager](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_QuickStart_ModifyManager.png)
 
 |请求类型|描述|
 |:-:|:-:|
@@ -96,7 +96,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 实体句柄(EntityHandle)可以通过[函数库](#fpspawnersystem-functionlibrary)的函数`GetEntityHandle()`或[实体接口](#fpspawnersystem_entityinterface)获取。
 如果调用`AActor::Destroy()`删除实体，会自动调用此函数，且请求类型为`Destroy`。
 
-![FPSpawnerSystem_QuickStart_ModifyEntity](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_ModifyEntity.png)
+![FPSpawnerSystem_QuickStart_ModifyEntity](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_QuickStart_ModifyEntity.png)
 
 |请求类型|描述|
 |:-:|:-:|
@@ -109,7 +109,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 
 仅当实体的[实体数据](#fpspawnersystem_entitydata)中`bShouldSaveData = true`时，该实体的数据才会被序列化保存。
 
-![FPSpawnerSystem_QuickStart_SaveData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_SaveData.png)
+![FPSpawnerSystem_QuickStart_SaveData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_QuickStart_SaveData.png)
 
 |[函数库](#fpspawnersystem-functionlibrary)的函数|调用时机|描述|
 |:-:|:-:|:-:|
@@ -118,18 +118,18 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 
 8、为实体`Actor`实现[实体接口](#fpspawnersystem_entityinterface)`FPSpawnerEntityInterface`后，可通过该接口获取实体数据。若实体为`APawn`类型，还可将接口应用于其关联的`AAIController`。
 
-![FPSpawnerSystem_QuickStart_Interface](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_Interface.png)
+![FPSpawnerSystem_QuickStart_Interface](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_QuickStart_Interface.png)
 
 9、继承[实体属性集](#fpspawnersystem_entityattributeset)(`UFPSpawnerEntityAttributeSet`)定义实体的自定义属性，支持为特定数据类型(`int32`、`int64`、`float`、`double`、`FString`、`FName`、`FText`)设置随机范围。
 实体卸载后，属性集会序列化保留在内存中。在关联的[实体数据](#fpspawnersystem_entitydata)中设置`bShouldSaveData = true`，[生成器保存数据](#fpspawnersystem_savedata)时会将属性集写入硬盘。
 
-![FPSpawnerSystem_QuickStart_AttributeSet](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_AttributeSet.png)
+![FPSpawnerSystem_QuickStart_AttributeSet](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_QuickStart_AttributeSet.png)
 
 10、若需在运行时动态添加实体(例如玩家建造房屋或放置物品)，可通过[函数库](#fpspawnersystem-functionlibrary)的函数`TryCreateDynamicEntityData()`创建动态实体数据，生成的实体将被托管至动态[实体管理器](#fpspawnersystemeditor_entitymanager)，支持分区加载/卸载，并支持持久化保存数据。<br>
 当动态实体被停用(如不可复活的实体被销毁)时，其所有数据将被自动清除。动态实体通常生成在玩家附近，建议在对应的[实体数据](#fpspawnersystem_entitydata)中设置`bIgnoreExclusionRange = true`，以避免因激活源过近而阻止生成。<br>
 可通过函数`RemoveDynamicEntityManagerData()`移除由`TryCreateDynamicEntityData()`添加的所有动态实体数据。
 
-![FPSpawnerSystem_QuickStart_DynamicEntity](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_DynamicEntity.png)
+![FPSpawnerSystem_QuickStart_DynamicEntity](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_QuickStart_DynamicEntity.png)
 
 |函数参数|类型|描述|
 |:-:|:-:|:-:|
@@ -138,11 +138,22 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 |NewAttributeSet|`UFPSpawnerEntityAttributeSet*`|可选[实体属性集](#fpspawnersystem_entityattributeset)，必须与`NewEntityData`中指定的属性集类型一致；为空时则使用默认值或随机范围值；外部手动创建的属性集，会在序列化后自动被GC回收|
 |OutEntityHandle|`FFPSpawnerEntityHandle`|返回生成实体的唯一句柄|
 
-11、通过[项目设置](#fpspawnersystem-projectsettings)对[实体LOD](#fpspawnersystem_entitylod)进行全局配置。
+11、可通过调用`ListenEntityStateChange()`异步节点，监听指定实体管理器中实体的状态变化。
+结合`GetEntityCountByManager()`函数，可实时获取该管理器当前存活的实体数量，实现基于实体数量的条件判断与逻辑响应。
+
+![FPSpawnerSystem_ListenEntityState](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_ListenEntityState.png)
+
+典型应用场景：动态区域封锁与解封机制<br>
+	（1）玩家进入区域，调用`TryModifyEntityManagerState()`激活对应的实体管理器，生成怪物并封锁出口；<br>
+	（2）启动状态监听，调用`ListenEntityStateChange()`监听该管理器下的实体状态变化；<br>
+	（3）检测实体数量，在回调事件(OnChanged)中定期调用`GetEntityCountByManager()`获取当前存活实体数；<br>
+	（4）执行解封逻辑，当存活实体数量为 0（即所有怪物被消灭）时，调用 TryModifyEntityManagerState() 停用管理器，并触发后续逻辑（如打开通道、播放音效、推进任务进度）。
+
+12、通过[项目设置](#fpspawnersystem-projectsettings)对[实体LOD](#fpspawnersystem_entitylod)进行全局配置。
 如果要对单个实体的LOD覆盖，可以在[实体数据](#fpspawnersystem_entitydata)中设置`bLODArrayOverrides = true`，为特定实体设置独立的LOD行为。<br>
 可以通过[函数库](#fpspawnersystem-functionlibrary)中的函数`SetLODDistance()`或`GetLODDistance()`分别动态设置/获取LOD距离缩放比例。
 
-![FPSpawnerSystem_QuickStart_LOD](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_QuickStart_LOD.png)
+![FPSpawnerSystem_QuickStart_LOD](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_QuickStart_LOD.png)
 
 [实体LOD](#fpspawnersystem_entitylod)仅影响本地客户端性能。如需提升整体游戏性能，建议在[实体数据管理器](#fpspawnersystem_entitydatamanager)的[生成器设置](#fpspawnersystem_spawnersettings)中合理配置参数，
 也可以通过[实体数据](#fpspawnersystem_entitydata)中设置`LoadingScaleFactor`来缩小特定实体的加载范围。合理配置参数可在保证基本视觉体验的同时显著提升性能。
@@ -169,14 +180,14 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 
 实体管理器，在指定区域计算并生成实体数据，生成的实体数据保存在[实体数据管理器](#fpspawnersystem_entitydatamanager)中。此Actor仅在编辑器有效，放在场景大纲中使用。
 
-![FPSpawnerSystem_EntityManager](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_EntityManager.png)
+![FPSpawnerSystem_EntityManager](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_EntityManager.png)
 
 <a name="fpspawnersystemeditor_refreshscatterdata"></a>
 * **刷新散布数据**
 
 移除旧散布数据并生成新散布数据。在**刷新散布数据**前，需先添加[散布策略](#fpspawnersystemeditor_scatterstrategy)算法，设置[实体数据](#fpspawnersystem_entitydata)及生成数量，并调整盒体组件范围，确保在指定区域内生成新的实体数据。
 
-![FPSpawnerSystem_RefreshScatterData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_RefreshScatterData.png)
+![FPSpawnerSystem_RefreshScatterData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_RefreshScatterData.png)
 
 <a name="fpspawnersystemeditor_clearscatterdata"></a>
 * **清除散布数据**
@@ -188,11 +199,11 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 
 自定义实体变换，应用自定义的数据，[刷新散布数据](#fpspawnersystemeditor_refreshscatterdata)后，让`bDebugScatterData = true`且`bCustomScatterData = true`时，可以通过选中**调试网格**(图片中的箭头，双击鼠标左键选中时会变成目标实体)自定义实体的变换。
 
-![FPSpawnerSystem_ApplyDebugData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_ApplyDebugData.png)
+![FPSpawnerSystem_ApplyDebugData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_ApplyDebugData.png)
 
 自定义实体的变换后，**应用调试数据**的按钮将变为可编辑状态，应用后就可以使用自定义实体的变换。
 
-![FPSpawnerSystem_ApplyDebugData_1](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_ApplyDebugData_1.png)
+![FPSpawnerSystem_ApplyDebugData_1](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_ApplyDebugData_1.png)
 
 <a name="fpspawnersystemeditor_applyscatterdata"></a>
 * **应用散布数据**
@@ -204,7 +215,7 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 如果[实体数据](#fpspawnersystem_entitydata)是`Actor`，会直接生成Actor。<br>
 如果[实体数据](#fpspawnersystem_entitydata)是`Mesh`，参考**世界分区**，在`Mesh`所在的网格单元中生成一个`FPSpawnerScatterMeshAttachActor`，用于统一管理该单元内由插件生成的所有网格实体，网格单元的大小可通过[项目设置](#fpspawnersystem-projectsettings)中的InstancedMeshGridSize设置。
 
-![FPSpawnerSystem_ApplyScatterData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_ApplyScatterData.png)
+![FPSpawnerSystem_ApplyScatterData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_ApplyScatterData.png)
 
 <a name="fpspawnersystemeditor_managersettings"></a>
 * **管理器设置**
@@ -297,7 +308,7 @@ void UpdateScatterEntityData(const FFPSpawnerScatterData& NewScatterData);
 
 用于判断是否可以生成实体。在地面生成时检测有效表面；在空中生成时检测无效表面
 
-![FPSpawnerSystem_TraceParameters](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_TraceParameters.png)
+![FPSpawnerSystem_TraceParameters](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_TraceParameters.png)
 
 |属性名称|类型|描述|
 |:-:|:-:|:-:|
@@ -385,7 +396,7 @@ public:
 
 根据实体数量将散布区域等分为多个网格区域，并在每个网格区域内随机偏移生成实体数据。
 
-![FPSpawnerSystem_GridScatter](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_GridScatter.png)
+![FPSpawnerSystem_GridScatter](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_GridScatter.png)
 
 |属性名称|类型|描述|
 |:-:|:-:|:-:|
@@ -404,7 +415,7 @@ public:
 
 在场景随机生成实体数据。
 
-![FPSpawnerSystem_RandomScatter](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_RandomScatter.png)
+![FPSpawnerSystem_RandomScatter](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_RandomScatter.png)
 
 |属性名称|类型|描述|
 |:-:|:-:|:-:|
@@ -446,8 +457,8 @@ public:
 <a name="fpspawnersystem_runtimeflowchart"></a>
 #### 运行流程图
 
-![FPSpawnerSystem_MindMap](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_MindMap.png)
-![FPSpawnerSystem_ActivationSource](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_ActivationSource.png)
+![FPSpawnerSystem_MindMap](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_MindMap.png)
+![FPSpawnerSystem_ActivationSource](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_ActivationSource.png)
 1、绿色圆圈是加载范围；红色圆圈是卸载范围。<br>
 2、绿色分区网格是加载网络；红色分区网格是未加载网络。<br>
 3、浅绿色区域加载实体；浅蓝色区域不再加载实体，已加载的实体不卸载；浅红色卸载实体。
@@ -490,7 +501,7 @@ public:
 
 定义此场景(关卡)中生成器系统的运行时参数
 
-![FPSpawnerSystem_EntityDataManager](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_EntityDataManager.png)
+![FPSpawnerSystem_EntityDataManager](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_EntityDataManager.png)
 
 |属性名称|类型|描述|
 |:-:|:-:|:-:|
@@ -516,12 +527,12 @@ public:
 
 1、打印散布数据(Print Scatter Data)，将当前的所有实体数据以表格形式输出到日志窗口，便于查看实体分布与内存占用情况。
 
-![FPSpawnerSystem_PrintScatterData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_PrintScatterData.png)
+![FPSpawnerSystem_PrintScatterData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_PrintScatterData.png)
 
 2、操作散布数据(Operate Scatter Data)，`Remove Manager Id`输入All(不区分大小写)，移除所有数据；`Remove Manager Id`输入实体管理器ID，移除对应的实体数据。
 `MoveTo Manager Id`输入实体管理器ID，将`Remove Manager Id`的实体数据移动到此ID的实体管理器。
 
-![FPSpawnerSystem_OperateScatterData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_OperateScatterData.png)
+![FPSpawnerSystem_OperateScatterData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_OperateScatterData.png)
 
 3、在控制台输入指令`FP.Spawner.Debug.EntityCounts (bool)`可以查看实体总数、活动Actor计数和活动网格体计数。
 
@@ -593,7 +604,7 @@ enum class EFPSpawnerEntityRequestType : uint8
 
 激活源会作为运行时动态激活实体的锚点，激活源会激活其周围的分区网格，然后由系统根据距离进一步决定是否激活该网格中的实体。
 
-![FPSpawnerSystem_ActivationSource](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_ActivationSource.png)
+![FPSpawnerSystem_ActivationSource](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_ActivationSource.png)
 1、绿色圆圈是加载范围；红色圆圈是卸载范围。<br>
 2、绿色分区网格是加载网络；红色分区网格是未加载网络。<br>
 3、浅绿色区域加载实体；浅蓝色区域不再加载实体，已加载的实体不卸载；浅红色卸载实体。
@@ -706,7 +717,7 @@ graph TD
     D --> G	
 ```
 
-![FPSpawnerSystem_EntityData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_EntityData.png)
+![FPSpawnerSystem_EntityData](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_EntityData.png)
 
 |属性名称|类型|描述|
 |:-:|:-:|:-:|
@@ -720,7 +731,7 @@ graph TD
 <a name="fpspawnersystem_entitydata_Mesh"></a>
 `Mesh`实体数据
 
-![FPSpawnerSystem_EntityData_Mesh](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_EntityData_Mesh.png)
+![FPSpawnerSystem_EntityData_Mesh](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_EntityData_Mesh.png)
 
 |属性名称|类型|描述|
 |:-:|:-:|:-:|
@@ -732,7 +743,7 @@ graph TD
 <a name="fpspawnersystem_entitydata_Actor"></a>
 `Actor`实体数据
 
-![FPSpawnerSystem_EntityData_Actor](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_EntityData_Actor.png)
+![FPSpawnerSystem_EntityData_Actor](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_EntityData_Actor.png)
 
 |属性名称|类型|描述|
 |:-:|:-:|:-:|
@@ -747,7 +758,7 @@ graph TD
 <a name="fpspawnersystem_entitydata_Pawn"></a>
 `Pawn`实体数据
 
-![FPSpawnerSystem_EntityData_Pawn](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_EntityData_Pawn.png)
+![FPSpawnerSystem_EntityData_Pawn](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_EntityData_Pawn.png)
 
 |属性名称|类型|描述|
 |:-:|:-:|:-:|
@@ -762,11 +773,11 @@ graph TD
 
 1、继承`UFPSpawnerEntityAttributeSet`创建自己的属性集类，并在其中定义任意数量的自定义属性。
 
-![FPSpawnerSystem_AttributeSet](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_AttributeSet.png)
+![FPSpawnerSystem_AttributeSet](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_AttributeSet.png)
 
 2、添加给[实体数据](#fpspawnersystem_entitydata)可以设置属性默认值，数据类型`int32`、`int64`、`float`、`double`、`FString`、`FName`、`FText`支持设置随机范围。
 
-![FPSpawnerSystem_AttributeSet_Instance](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_AttributeSet_Instance.png)
+![FPSpawnerSystem_AttributeSet_Instance](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_AttributeSet_Instance.png)
 
 3、如果实体实现了[实体接口](#fpspawnersystem_entityinterface)，可以通过接口的通过的`InitEntity()`和`RecycleAttributeSet()`函数分别获取和保存属性集。
 实体拥有属性集是由[实体数据](#fpspawnersystem_entitydata)中指定的`AttributeSet`类为模板创建，随机生成专属自己的随机属性，并通过属性字符串映射进行反序列化与初始化。
@@ -933,13 +944,13 @@ public:
 
 客户端用于优化性能的机制，会根据玩家摄像机与实体之间的距离，动态调整其可见性、Tick频率等行为。
 
-![FPSpawnerSystem_EntityLOD](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_EntityLOD.png)
+![FPSpawnerSystem_EntityLOD](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_EntityLOD.png)
 
 浅绿色区域的实体为`LOD 0`；浅蓝色区域的实体为`LOD 1`；浅红色区域的实体为`LOD 2`。
 
 1、通过[项目设置](#fpspawnersystem-projectsettings)进行全局配置
 
-![FPSpawnerSystem_EntityLOD_Settings](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_EntityLOD_Settings.png)
+![FPSpawnerSystem_EntityLOD_Settings](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_EntityLOD_Settings.png)
 
 |属性名称|类型|描述|
 |:-:|:-:|:-:|
@@ -971,7 +982,7 @@ public:
 
 ```c++
 // 运行时实体，管理运行时的实体数据
-class FPSPAWNERSYSTEM_API FFPSpawnerRuntimeEntity : public TSharedFromThis<FFPSpawnerRuntimeEntity>
+class FFPSpawnerRuntimeEntity : public TSharedFromThis<FFPSpawnerRuntimeEntity>
 {
 public:
 
@@ -1164,7 +1175,7 @@ public:
 
 ```c++
 // 运行时实体管理器，管理FFPSpawnerRuntimeEntity，其他位置调用实体只能使用弱指针TWeakPtr<FFPSpawnerRuntimeEntity>
-class FPSPAWNERSYSTEM_API FFPSpawnerRuntimeEntityManager : public TSharedFromThis<FFPSpawnerRuntimeEntityManager>
+class FFPSpawnerRuntimeEntityManager : public TSharedFromThis<FFPSpawnerRuntimeEntityManager>
 {
 public:
 
@@ -1221,7 +1232,7 @@ private:
 
 ```c++
 // 运行时单元格，管理单元格区域内可被激活的实体
-class FPSPAWNERSYSTEM_API FFPSpawnerRuntimeCell : public TSharedFromThis<FFPSpawnerRuntimeCell>
+class FFPSpawnerRuntimeCell : public TSharedFromThis<FFPSpawnerRuntimeCell>
 {
 public:
 
@@ -1262,7 +1273,7 @@ private:
 <a name="fpspawnersystem-projectsettings"></a>
 ### 项目设置
 
-![FPSpawnerSystem_Settings](https://github.com/FirePlume126/FP_SpawnerSystem/blob/main/Images/FPSpawnerSystem_Settings.png)
+![FPSpawnerSystem_Settings](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_Settings.png)
 
 ```c++
 // 默认分区网格设置
@@ -1477,6 +1488,22 @@ static void RemoveDynamicEntityManagerData(const UObject* WorldContextObject);
 // 重置所有实体管理器，也会重置所有实体并重置数据
 UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
 static void ResetAllEntityManagers(const UObject* WorldContextObject);
+
+// 获取实体管理器中所有实体数量
+// @param InManagerName 实体管理器名称
+UFUNCTION(BlueprintPure, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
+static int32 GetTotalEntityCountByManager(const UObject* WorldContextObject, const FName& InManagerName);
+
+// 获取实体管理器中存活(闲置或激活状态)的实体数量
+// @param InManagerName 实体管理器名称
+UFUNCTION(BlueprintPure, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
+static int32 GetEntityCountByManager(const UObject* WorldContextObject, const FName& InManagerName);
+
+// 获取实体管理器中指定状态的实体数量
+// @param InManagerName 实体管理器名称
+// @param InEntityState 指定实体状态的类型
+UFUNCTION(BlueprintPure, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
+static int32 GetEntityCountByManagerAndState(const UObject* WorldContextObject, const FName& InManagerName, const EFPSpawnerEntityStateType InEntityState);
 
 // 获取实体数据
 // @param InEntityHandle 实体句柄，生成器系统的实体唯一标识
