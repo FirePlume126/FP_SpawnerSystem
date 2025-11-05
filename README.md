@@ -5,12 +5,13 @@
 * **Demo 中包含的插件没有开源，但支持添加到其他项目中使用，并支持打包**
 
 ## 作者信息
-Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
- 
-作者网址：
-[Bilibili](https://space.bilibili.com/395084718)、
-[YouTube](https://www.youtube.com/@FirePlume126)、
-[GitHub](https://www.github.com/FirePlume126)
+
+Copyright FirePlume, All Rights Reserved.
+
+Email: fireplume@126.com<br>
+GitHub: [FirePlume126](https://www.github.com/FirePlume126)<br>
+Bilibili: [火羽FP](https://space.bilibili.com/395084718)<br>
+YouTube: [FirePlume126](https://www.youtube.com/@FirePlume126)
 
 **[返回目录](https://www.github.com/FirePlume126/FP_Readme#Directory)**
 
@@ -121,6 +122,10 @@ Copyright FirePlume, All Rights Reserved. Email: fireplume@126.com
 ![FPSpawnerSystem_QuickStart_Interface](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_QuickStart_Interface.png)
 
 9、继承[实体属性集](#fpspawnersystem_entityattributeset)(`UFPSpawnerEntityAttributeSet`)定义实体的自定义属性，支持为特定数据类型(`int32`、`int64`、`float`、`double`、`FString`、`FName`、`FText`)设置随机范围。
+在[实体属性集](#fpspawnersystem_entityattributeset)中重写函数`RandomAttributeRanges()`，该函数仅在首次生成实体，创建属性集时执行，用于实现自定义初始属性逻辑；恢复或重新加载已保存的属性时不会执行。
+
+![FPSpawnerSystem_QuickStart_AttributeSet_Init](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_QuickStart_AttributeSet_Init.png)
+
 实体卸载后，属性集会序列化保留在内存中。在关联的[实体数据](#fpspawnersystem_entitydata)中设置`bShouldSaveData = true`，[生成器保存数据](#fpspawnersystem_savedata)时会将属性集写入硬盘。
 
 ![FPSpawnerSystem_QuickStart_AttributeSet](https://github.com/FirePlume126/FP_SpawnerSystem/blob/5.6/Images/FPSpawnerSystem_QuickStart_AttributeSet.png)
