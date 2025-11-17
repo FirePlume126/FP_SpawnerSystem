@@ -1,0 +1,26 @@
+{
+	"OutputFiles": [
+		"Module.FPSpawnerSystem.cpp.obj",
+		"FPSpawnerSystemModule.cpp.obj",
+		"FPSpawnerActivationSourceComponent.cpp.obj",
+		"FPSpawnerEntityComponent.cpp.obj",
+		"FPSpawnerEntityAttributeSet.cpp.obj",
+		"FPSpawnerEntityData.cpp.obj",
+		"FPSpawnerTypes.cpp.obj",
+		"FPSpawnerActivationSourceInterface.cpp.obj",
+		"FPSpawnerEntityInterface.cpp.obj",
+		"FPSpawnerProjectSettings.cpp.obj",
+		"FPSpawnerEntityDataManager.cpp.obj",
+		"FPSpawnerManagerSubsystem.cpp.obj",
+		"FPSpawnerPartitionGridCalculation.cpp.obj",
+		"FPSpawnerPartitionGridManager.cpp.obj",
+		"FPSpawnerRuntimeCell.cpp.obj",
+		"FPSpawnerRuntimeEntity.cpp.obj",
+		"FPSpawnerRuntimeEntityManager.cpp.obj",
+		"FPSpawnerMeshEntityManager.cpp.obj",
+		"FPSpawnerScatterMeshAttachActor.cpp.obj",
+		"FPSpawnerStaticMeshComponent.cpp.obj",
+		"FPSpawnerFunctionLibrary.cpp.obj",
+		"FPSpawnerListenEntityStateChange.cpp.obj"
+	]
+}
