@@ -1211,6 +1211,9 @@ public:
 	// 获取所有实体
 	TArray<TSharedPtr<FFPSpawnerRuntimeEntity>> GetAllEntities() const;
 
+	// 通过实体数据查找实体句柄列表，输入实体数据为空时，返回管理器的所有实体句柄
+	TArray<FFPSpawnerEntityHandle> FindEntityHandlesByEntityData(TSoftObjectPtr<UFPSpawnerEntityData> InEntityData = nullptr);
+
 	// 状态是否已修改
 	bool IsStateModified() const;
 
@@ -1482,7 +1485,7 @@ static bool TryModifyEntityState(const UObject* WorldContextObject, const FFPSpa
 // @param NewEntityData 实体数据
 // @param NewTransform 实体变换
 // @param OutEntityHandle 返回实体句柄
-// @param NewAttributeSet 实体的属性集，属性集必须和NewEntityData的属性集为同一个类，为空时使用NewEntityData数据集的默认值或随机值；手动创建的属性集(非生成器系统内部创建的)会在使用完成后自动GC
+// @param NewAttributeSet 可选实体属性集，必须与NewEntityData中指定的属性集类型一致；若为空，则使用默认值或随机范围值；外部手动创建的属性集，会在序列化后自动被GC回收
 UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
 static bool TryCreateDynamicEntityData(const UObject* WorldContextObject, TSoftObjectPtr<UFPSpawnerEntityData> NewEntityData, const FTransform& NewTransform, FFPSpawnerEntityHandle& OutEntityHandle, UFPSpawnerEntityAttributeSet* NewAttributeSet = nullptr);
 
@@ -1490,7 +1493,7 @@ static bool TryCreateDynamicEntityData(const UObject* WorldContextObject, TSoftO
 UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
 static void RemoveDynamicEntityManagerData(const UObject* WorldContextObject);
 
-// 重置所有实体管理器，也会重置所有实体并重置数据
+// 重置所有实体管理器，也会重置所有实体并清除所有保存数据
 UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
 static void ResetAllEntityManagers(const UObject* WorldContextObject);
 
@@ -1518,16 +1521,27 @@ static int32 GetEntityCountByManagerAndState(const UObject* WorldContextObject, 
 UFUNCTION(BlueprintPure, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
 static bool GetEntityInfo(const UObject* WorldContextObject, const FFPSpawnerEntityHandle& InEntityHandle, EFPSpawnerEntityStateType& OutEntityState, FTransform& OutTransform, AActor*& OutEntityActor);
 
+// 获取实体数据
+// @param InEntityHandle 实体句柄，生成器系统的实体唯一标识
+UFUNCTION(BlueprintPure, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
+static UFPSpawnerEntityData* GetEntityData(const UObject* WorldContextObject, const FFPSpawnerEntityHandle& InEntityHandle);
+
+// 通过实体句柄查找管理器名称
+// @param InEntityHandle 实体句柄，生成器系统的实体唯一标识
+UFUNCTION(BlueprintPure, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
+FName GetManagerNameByHandle(const UObject* WorldContextObject, const FFPSpawnerEntityHandle& InEntityHandle);
+
+// 通过管理器查找实体句柄列表
+// @param InManagerName 实体管理器名称，为空时查找所有管理器
+// @param InEntityData 实体数据，查找时会对比实体数据路径，不会加载实体数据资源；为空时查找所有实体数据
+UFUNCTION(BlueprintPure, BlueprintAuthorityOnly, meta = (WorldContext = "WorldContextObject"), Category = "FPSpawner")
+static TArray<FFPSpawnerEntityHandle> FindEntityHandlesByManager(const UObject* WorldContextObject, FName InManagerName = NAME_None, TSoftObjectPtr<UFPSpawnerEntityData> InEntityData = nullptr);
+
 // 获取实体句柄
 // @param InEntity 生成器生成的实体
 // @return 实体句柄，生成器系统的实体唯一标识
-UFUNCTION(BlueprintPure, Category = "FPSpawner")
+UFUNCTION(BlueprintPure, BlueprintAuthorityOnly, Category = "FPSpawner")
 static FFPSpawnerEntityHandle GetEntityHandle(AActor* InEntity);
-
-// 获取实体数据
-// @param InEntity 生成器生成的实体
-UFUNCTION(BlueprintPure, Category = "FPSpawner")
-static UFPSpawnerEntityData* GetEntityData(AActor* InEntity);
 
 // 获取实体属性集
 // @param InEntity 生成器生成的实体
