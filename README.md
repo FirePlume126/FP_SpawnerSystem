@@ -743,7 +743,7 @@ graph TD
 |StaticMesh|`TSoftObjectPtr<UStaticMesh>`|静态网格资产|
 |RelativeTransform|`FTransform`|相对变换|
 |CollisionProfile|`FCollisionProfileName`|碰撞预设|
-|Materials|`TArray<TSoftObjectPtr<UMaterialInstance>>`|替换网格的材质|
+|Materials|`TArray<TSoftObjectPtr<UMaterialInterface>>`|替换网格的材质|
 
 <a name="fpspawnersystem_entitydata_Actor"></a>
 `Actor`实体数据
