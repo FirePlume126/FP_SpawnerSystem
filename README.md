@@ -317,12 +317,13 @@ void UpdateScatterEntityData(const FFPSpawnerScatterData& NewScatterData);
 
 |属性名称|类型|描述|
 |:-:|:-:|:-:|
-|CollisionChannels|`TArray<TEnumAsByte<ECollisionChannel>>`|碰撞检测通道列表，用于判断地面或障碍物|
-|bTraceComplex|`bool`|是否使用复杂碰撞进行检测|
-|IgnoredActors|`TArray<TObjectPtr<AActor>>`|在追踪时忽略的Actor列表|
-|PhysMaterials|`TArray<TObjectPtr<UPhysicalMaterial>>`|允许生成的物理材质类型|
+|CollisionChannels|`TArray<TEnumAsByte<ECollisionChannel>>`|碰撞通道，生成实体时会进行碰撞检测的通道列表|
+|bTraceComplex|`bool`|复杂碰撞，开启后可以使用静态网格体的顶点进行检测|
+|IgnoredActors|`TArray<TObjectPtr<AActor>>`|忽略的Actor列表，生成实体时忽略这些Actor的碰撞，允许生成实体在这些Actor所在的位置|
+|BlockingActors|`TArray<TObjectPtr<AActor>>`|阻挡的Actor列表，生成实体时如果检测到这些Actor的碰撞，将不会生成实体，禁止生成实体在这些Actor所在的位置|
+|PhysMaterials|`TArray<TObjectPtr<UPhysicalMaterial>>`|物理材质列表，为空时不进行物理材质检测；如果不为空，仅能在这些物理材质所在的位置生成实体|
 |MaxSlopeAngle|`float`|最大斜面角度，地面的倾斜角超过该角度，将不会生成实体|
-|NavFilterClass|`TSubclassOf<UNavigationQueryFilter>`|导航查询过滤器类，可以仅在导航区域生成|
+|NavFilterClass|`TSubclassOf<UNavigationQueryFilter>`|导航查询过滤器的定义，用于在生成实体时进行导航检测，确保生成位置在导航网格上|
 
 以下为相关枚举结构体定义：
 ```c++
